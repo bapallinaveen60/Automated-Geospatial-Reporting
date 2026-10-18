@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "DateRange": {
+      "properties": {
+        "start": {
+          "format": "date",
+          "title": "Start",
+          "type": "string"
+        },
+        "end": {
+          "format": "date",
+          "title": "End",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "DateRange",
+      "type": "object"
+    }
+  },
+  "description": "What a project manager submits (via portal upload or a file dropped in ``incoming/``).",
+  "properties": {
+    "project_id": {
+      "pattern": "^[a-z0-9][a-z0-9_-]{2,63}$",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "client": {
+      "title": "Client",
+      "type": "string"
+    },
+    "site_name": {
+      "title": "Site Name",
+      "type": "string"
+    },
+    "module": {
+      "default": "site_screening_in",
+      "title": "Module",
+      "type": "string"
+    },
+    "geometry": {
+      "additionalProperties": true,
+      "title": "Geometry",
+      "type": "object"
+    },
+    "baseline_period": {
+      "$ref": "#/$defs/DateRange"
+    },
+    "current_period": {
+      "$ref": "#/$defs/DateRange"
+    },
+    "requested_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Requested By"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "project_id",
+    "client",
+    "site_name",
+    "geometry",
+    "baseline_period",
+    "current_period"
+  ],
+  "title": "AOIRequest",
+  "type": "object"
+}

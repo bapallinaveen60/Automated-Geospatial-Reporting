@@ -1,0 +1,356 @@
+{
+  "$defs": {
+    "ChangeSummary": {
+      "properties": {
+        "index": {
+          "title": "Index",
+          "type": "string"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        },
+        "loss_ha": {
+          "title": "Loss Ha",
+          "type": "number"
+        },
+        "gain_ha": {
+          "title": "Gain Ha",
+          "type": "number"
+        },
+        "net_change_mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Net Change Mean"
+        }
+      },
+      "required": [
+        "index",
+        "threshold",
+        "loss_ha",
+        "gain_ha",
+        "net_change_mean"
+      ],
+      "title": "ChangeSummary",
+      "type": "object"
+    },
+    "ClassShare": {
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "integer"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "area_ha": {
+          "title": "Area Ha",
+          "type": "number"
+        },
+        "percent": {
+          "title": "Percent",
+          "type": "number"
+        }
+      },
+      "required": [
+        "code",
+        "label",
+        "area_ha",
+        "percent"
+      ],
+      "title": "ClassShare",
+      "type": "object"
+    },
+    "ExceedanceFlag": {
+      "properties": {
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "critical"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Threshold"
+        },
+        "regulation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Regulation"
+        }
+      },
+      "required": [
+        "rule_id",
+        "severity",
+        "message",
+        "metric",
+        "value",
+        "threshold"
+      ],
+      "title": "ExceedanceFlag",
+      "type": "object"
+    },
+    "IndexStats": {
+      "properties": {
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean"
+        },
+        "median": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Median"
+        },
+        "p10": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P10"
+        },
+        "p90": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P90"
+        },
+        "valid_fraction": {
+          "title": "Valid Fraction",
+          "type": "number"
+        }
+      },
+      "required": [
+        "mean",
+        "median",
+        "p10",
+        "p90",
+        "valid_fraction"
+      ],
+      "title": "IndexStats",
+      "type": "object"
+    },
+    "ProximityResult": {
+      "properties": {
+        "layer": {
+          "title": "Layer",
+          "type": "string"
+        },
+        "nearest_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nearest Name"
+        },
+        "distance_m": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Distance M"
+        },
+        "overlap_ha": {
+          "default": 0.0,
+          "title": "Overlap Ha",
+          "type": "number"
+        },
+        "search_radius_m": {
+          "title": "Search Radius M",
+          "type": "number"
+        }
+      },
+      "required": [
+        "layer",
+        "nearest_name",
+        "distance_m",
+        "search_radius_m"
+      ],
+      "title": "ProximityResult",
+      "type": "object"
+    },
+    "SiteSummary": {
+      "properties": {
+        "area_ha": {
+          "title": "Area Ha",
+          "type": "number"
+        },
+        "perimeter_m": {
+          "title": "Perimeter M",
+          "type": "number"
+        },
+        "centroid_lon": {
+          "title": "Centroid Lon",
+          "type": "number"
+        },
+        "centroid_lat": {
+          "title": "Centroid Lat",
+          "type": "number"
+        },
+        "analysis_crs": {
+          "title": "Analysis Crs",
+          "type": "string"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State"
+        },
+        "district": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "District"
+        }
+      },
+      "required": [
+        "area_ha",
+        "perimeter_m",
+        "centroid_lon",
+        "centroid_lat",
+        "analysis_crs"
+      ],
+      "title": "SiteSummary",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "project_id": {
+      "title": "Project Id",
+      "type": "string"
+    },
+    "site": {
+      "$ref": "#/$defs/SiteSummary"
+    },
+    "lulc": {
+      "items": {
+        "$ref": "#/$defs/ClassShare"
+      },
+      "title": "Lulc",
+      "type": "array"
+    },
+    "indices": {
+      "additionalProperties": {
+        "$ref": "#/$defs/IndexStats"
+      },
+      "title": "Indices",
+      "type": "object"
+    },
+    "change": {
+      "items": {
+        "$ref": "#/$defs/ChangeSummary"
+      },
+      "title": "Change",
+      "type": "array"
+    },
+    "proximity": {
+      "items": {
+        "$ref": "#/$defs/ProximityResult"
+      },
+      "title": "Proximity",
+      "type": "array"
+    },
+    "flags": {
+      "items": {
+        "$ref": "#/$defs/ExceedanceFlag"
+      },
+      "title": "Flags",
+      "type": "array"
+    }
+  },
+  "required": [
+    "project_id",
+    "site"
+  ],
+  "title": "MetricsPayload",
+  "type": "object"
+}

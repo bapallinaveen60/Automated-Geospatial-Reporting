@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: uv sync --group dev
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Types
+        run: uv run mypy src
+      - name: Tests
+        run: uv run pytest --cov=geovision
+
+  qgis-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build QGIS renderer image
+        run: docker build -f docker/qgis.Dockerfile -t geovision-qgis:ci .

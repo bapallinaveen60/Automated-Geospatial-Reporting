@@ -1,0 +1,168 @@
+# Environmental Site Screening Report — India
+# All thresholds are SCREENING DEFAULTS. They must be reviewed by a qualified EIA
+# consultant for each engagement and are not legal determinations.
+
+name: site_screening_in
+title: Environmental Site Screening Report
+version: 0.1.0
+
+regulations:
+  - EIA Notification, 2006 (MoEFCC), incl. General Condition on 10 km proximity
+  - Wetlands (Conservation and Management) Rules, 2017
+  - Coastal Regulation Zone Notification, 2019
+  - Forest (Conservation) Act, 1980 / Van (Sanrakshan Evam Samvardhan) Adhiniyam, 1980
+  - IFC Performance Standards (lender due diligence)
+
+disclaimer: >
+  This report is an automated desktop screening produced from public satellite and
+  open geospatial datasets. It does not replace site inspection, authoritative records
+  (Survey of India, state wetland authorities, CZMA, Forest Department, PARIVESH) or a
+  statutory EIA. Findings must be reviewed and approved by a qualified professional.
+
+aoi:
+  min_area_ha: 0.01
+  max_area_ha: 50000
+
+imagery:
+  collection: sentinel-2-l2a
+  max_cloud: 20
+  resolution_m: 10
+  # Default periods favour the post-monsoon/dry season (Oct–Mar) for fewer clouds.
+  default_window_months: 6
+
+indices:
+  ndvi:
+    change_threshold: 0.15
+  mndwi:
+    change_threshold: 0.20
+
+rasters:
+  worldcover:
+    labels:
+      10: Tree cover
+      20: Shrubland
+      30: Grassland
+      40: Cropland
+      50: Built-up
+      60: Bare / sparse vegetation
+      70: Snow and ice
+      80: Permanent water bodies
+      90: Herbaceous wetland
+      95: Mangroves
+      100: Moss and lichen
+  water_occurrence: {}
+  dem: {}
+
+# Vector layers. search_radius_m is how far from the site boundary we look.
+layers:
+  protected_areas:
+    source: osm
+    tags: {boundary: [protected_area, national_park], leisure: nature_reserve}
+    search_radius_m: 10000
+  wetlands_water:
+    source: osm
+    tags: {natural: [wetland, water], water: true}
+    search_radius_m: 2000
+  forest:
+    source: osm
+    tags: {landuse: forest, boundary: forest}
+    search_radius_m: 1000
+  coastline:
+    source: osm
+    tags: {natural: coastline}
+    geom_types: [LineString, MultiLineString]
+    search_radius_m: 5000
+  # Client-supplied authoritative layers (uncomment per engagement):
+  # eco_sensitive_zones:
+  #   source: file
+  #   path: data/client/esz_notified.gpkg
+  #   name_field: esz_name
+  #   licence: Client supplied (MoEFCC notification)
+  #   search_radius_m: 10000
+  # crz_htl:
+  #   source: file
+  #   path: data/client/czmp_htl.gpkg
+  #   search_radius_m: 500
+
+rules:
+  - id: pa_within_10km
+    metric: proximity.protected_areas.distance_m
+    op: "<="
+    threshold: 10000
+    severity: critical
+    message: "A protected area lies {value:,.0f} m from the site, within the {threshold:,.0f} m EIA General Condition radius."
+    regulation: EIA Notification 2006, General Condition
+  - id: pa_overlap
+    metric: proximity.protected_areas.overlap_ha
+    op: ">"
+    threshold: 0
+    severity: critical
+    message: "{value:.2f} ha of the site overlaps a protected area."
+    regulation: Wildlife (Protection) Act 1972
+  - id: wetland_overlap
+    metric: proximity.wetlands_water.overlap_ha
+    op: ">"
+    threshold: 0
+    severity: critical
+    message: "{value:.2f} ha of mapped wetland/water body lies inside the site."
+    regulation: Wetlands (C&M) Rules 2017
+  - id: wetland_within_buffer
+    metric: proximity.wetlands_water.distance_m
+    op: "<="
+    threshold: 500
+    severity: warning
+    message: "A wetland/water body lies {value:,.0f} m from the site; check the notified zone of influence."
+    regulation: Wetlands (C&M) Rules 2017
+  - id: forest_adjacent
+    metric: proximity.forest.distance_m
+    op: "<="
+    threshold: 500
+    severity: warning
+    message: "Mapped forest lies {value:,.0f} m from the site; verify forest land status."
+    regulation: Forest (Conservation) Act 1980
+  - id: coast_crz
+    metric: proximity.coastline.distance_m
+    op: "<="
+    threshold: 500
+    severity: critical
+    message: "The coastline lies {value:,.0f} m from the site; CRZ applicability likely (HTL to be confirmed from CZMP)."
+    regulation: CRZ Notification 2019
+  - id: water_lulc_share
+    metric: lulc.80.percent
+    op: ">"
+    threshold: 5
+    severity: warning
+    message: "{value:.1f}% of the site is classed as permanent water."
+  - id: wetland_lulc_share
+    metric: lulc.90.percent
+    op: ">"
+    threshold: 1
+    severity: warning
+    message: "{value:.1f}% of the site is classed as herbaceous wetland."
+  - id: mangrove_present
+    metric: lulc.95.percent
+    op: ">"
+    threshold: 0
+    severity: critical
+    message: "Mangroves cover {value:.1f}% of the site (CRZ-IA ecologically sensitive area)."
+    regulation: CRZ Notification 2019
+  - id: vegetation_loss
+    metric: change.ndvi.loss_ha
+    op: ">"
+    threshold: 0.5
+    severity: warning
+    message: "{value:.2f} ha of vegetation loss detected between the two periods."
+  - id: imagery_coverage
+    metric: indices.ndvi.valid_fraction
+    op: "<"
+    threshold: 0.8
+    severity: info
+    message: "Only {value:.0%} of site pixels had cloud-free imagery; indices may be unrepresentative."
+    when_missing: info
+
+licences:
+  sentinel-2-l2a: Copernicus Sentinel data, free, full and open
+  esa-worldcover: CC BY 4.0, © ESA WorldCover project
+  jrc-gsw: Copernicus / EC JRC Global Surface Water, free and open
+  cop-dem-glo-30: Copernicus DEM, © DLR/Airbus, free licence
+  osm: ODbL 1.0, © OpenStreetMap contributors

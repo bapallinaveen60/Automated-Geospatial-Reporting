@@ -1,0 +1,41 @@
+# Local development stack.
+#   docker compose up --build
+# Dagster UI: http://localhost:3000   MinIO console: http://localhost:9001
+services:
+  engine:
+    build:
+      context: .
+      dockerfile: docker/engine.Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      GEOVISION_DATA_ROOT: /data/runs
+    volumes:
+      - ./data:/data
+      - ./src:/app/src
+      - /var/run/docker.sock:/var/run/docker.sock  # lets the engine launch the qgis renderer
+
+  qgis:
+    build:
+      context: .
+      dockerfile: docker/qgis.Dockerfile
+    image: geovision-qgis:latest
+    profiles: ["build-only"]  # built here, launched on demand by the engine
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: geovision
+      MINIO_ROOT_PASSWORD: geovision-dev-only
+    volumes:
+      - minio-data:/data
+
+volumes:
+  minio-data:

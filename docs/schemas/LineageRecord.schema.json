@@ -1,0 +1,135 @@
+{
+  "$defs": {
+    "InputRef": {
+      "properties": {
+        "kind": {
+          "enum": [
+            "stac_item",
+            "vector_source",
+            "raster_source",
+            "file",
+            "asset"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "href": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Href"
+        },
+        "collection": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Collection"
+        },
+        "acquired": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Acquired"
+        },
+        "licence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Licence"
+        },
+        "extra": {
+          "additionalProperties": true,
+          "title": "Extra",
+          "type": "object"
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ],
+      "title": "InputRef",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "asset_key": {
+      "title": "Asset Key",
+      "type": "string"
+    },
+    "project_id": {
+      "title": "Project Id",
+      "type": "string"
+    },
+    "inputs": {
+      "items": {
+        "$ref": "#/$defs/InputRef"
+      },
+      "title": "Inputs",
+      "type": "array"
+    },
+    "parameters": {
+      "additionalProperties": true,
+      "title": "Parameters",
+      "type": "object"
+    },
+    "code_version": {
+      "title": "Code Version",
+      "type": "string"
+    },
+    "package_versions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Package Versions",
+      "type": "object"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "finished_at": {
+      "format": "date-time",
+      "title": "Finished At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "asset_key",
+    "project_id",
+    "code_version",
+    "started_at",
+    "finished_at"
+  ],
+  "title": "LineageRecord",
+  "type": "object"
+}

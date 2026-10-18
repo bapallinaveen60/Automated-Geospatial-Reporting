@@ -1,0 +1,19 @@
+{
+  "project_id": "demo-ameenpur-001",
+  "client": "GeoVision Demo",
+  "site_name": "Test site near Ameenpur Lake, Sangareddy, Telangana",
+  "module": "site_screening_in",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [78.3150, 17.5280],
+      [78.3220, 17.5280],
+      [78.3220, 17.5330],
+      [78.3150, 17.5330],
+      [78.3150, 17.5280]
+    ]]
+  },
+  "baseline_period": {"start": "2021-10-01", "end": "2022-03-31"},
+  "current_period": {"start": "2025-10-01", "end": "2026-03-31"},
+  "requested_by": "demo"
+}

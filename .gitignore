@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Env / secrets
+.env
+*.env
+
+# Pipeline outputs and caches
+data/runs/
+data/cache/
+cache/
+*.tif
+*.tiff
+!data/fixtures/**/*.tif
+*.parquet
+!data/fixtures/**/*.parquet
+build/
+dist/
+
+# Dagster
+.dagster/
+dagster_home/
+tmp*/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

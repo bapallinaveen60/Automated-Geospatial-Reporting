@@ -1,0 +1,127 @@
+"""Headless PyQGIS map-plate renderer.
+
+Runs inside the ``geovision-qgis`` container (see docker/qgis.Dockerfile) and must only import
+the standard library and ``qgis``. Invoked as::
+
+    xvfb-run -a python3 -m geovision.carto.render --job /work/plate_ndvi.json
+
+Job file (JSON)::
+
+    {
+      "template": "/app/src/geovision/carto/templates/plate_a4_landscape.qpt",
+      "output_pdf": "/work/plates/ndvi.pdf",
+      "output_png": "/work/plates/ndvi.png",          # optional
+      "dpi": 300,
+      "extent": [minx, miny, maxx, maxy],
+      "extent_crs": "EPSG:32644",
+      "padding": 0.15,
+      "layers": [                                       # drawn top to bottom
+        {"name": "Site boundary", "path": "/work/aoi.gpkg", "kind": "vector", "style": "aoi.qml"},
+        {"name": "NDVI", "path": "/work/ndvi.tif", "kind": "raster", "style": "ndvi.qml"}
+      ],
+      "basemap": {"name": "OpenStreetMap",
+                  "uri": "type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19"},
+      "labels": {"Title": "NDVI — Current period", "Subtitle": "Project ABC-001"}
+    }
+
+Template item IDs expected: MainMap (map), plus any label IDs referenced in ``labels``.
+"""
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+
+STYLE_DIR = Path(__file__).parent / "styles"
+
+
+def render(job: dict) -> bool:
+    from qgis.core import (
+        QgsApplication,
+        QgsCoordinateReferenceSystem,
+        QgsLayoutExporter,
+        QgsLayoutItemLabel,
+        QgsLayoutItemMap,
+        QgsPrintLayout,
+        QgsProject,
+        QgsRasterLayer,
+        QgsReadWriteContext,
+        QgsRectangle,
+        QgsVectorLayer,
+    )
+    from qgis.PyQt.QtXml import QDomDocument
+
+    qgs = QgsApplication([], False)
+    qgs.initQgis()
+    try:
+        project = QgsProject.instance()
+        crs = QgsCoordinateReferenceSystem(job["extent_crs"])
+        project.setCrs(crs)
+
+        # Add bottom-most first so the first listed layer ends up on top.
+        specs = list(reversed(job.get("layers", [])))
+        if job.get("basemap"):
+            specs.insert(0, {**job["basemap"], "kind": "xyz"})
+        for spec in specs:
+            if spec["kind"] == "vector":
+                layer = QgsVectorLayer(spec["path"], spec["name"], "ogr")
+            elif spec["kind"] == "raster":
+                layer = QgsRasterLayer(spec["path"], spec["name"], "gdal")
+            elif spec["kind"] == "xyz":
+                layer = QgsRasterLayer(spec["uri"], spec["name"], "wms")
+            else:
+                raise ValueError(f"Unknown layer kind {spec['kind']!r}")
+            if not layer.isValid():
+                raise RuntimeError(f"Layer failed to load: {spec.get('path') or spec.get('uri')}")
+            if spec.get("style"):
+                style = Path(spec["style"])
+                style = style if style.is_absolute() else STYLE_DIR / style
+                layer.loadNamedStyle(str(style))
+            project.addMapLayer(layer)
+
+        layout = QgsPrintLayout(project)
+        doc = QDomDocument()
+        doc.setContent(Path(job["template"]).read_text(encoding="utf-8"))
+        layout.loadFromTemplate(doc, QgsReadWriteContext())
+
+        for item_id, text in job.get("labels", {}).items():
+            item = layout.itemById(item_id)
+            if isinstance(item, QgsLayoutItemLabel):
+                item.setText(text)
+
+        map_item = layout.itemById("MainMap")
+        if not isinstance(map_item, QgsLayoutItemMap):
+            raise RuntimeError("Template has no map item with id 'MainMap'")
+        map_item.setCrs(crs)
+        rect = QgsRectangle(*job["extent"])
+        rect.scale(1 + 2 * float(job.get("padding", 0.15)))
+        map_item.zoomToExtent(rect)
+        map_item.refresh()
+
+        exporter = QgsLayoutExporter(layout)
+        Path(job["output_pdf"]).parent.mkdir(parents=True, exist_ok=True)
+        pdf = QgsLayoutExporter.PdfExportSettings()
+        pdf.dpi = int(job.get("dpi", 300))
+        pdf.rasterizeWholeImage = False
+        ok = exporter.exportToPdf(job["output_pdf"], pdf) == QgsLayoutExporter.Success
+        if ok and job.get("output_png"):
+            img = QgsLayoutExporter.ImageExportSettings()
+            img.dpi = int(job.get("dpi", 300))
+            ok = exporter.exportToImage(job["output_png"], img) == QgsLayoutExporter.Success
+        return ok
+    finally:
+        qgs.exitQgis()
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Render a map plate from a job file.")
+    parser.add_argument("--job", required=True, help="Path to job JSON")
+    args = parser.parse_args(argv)
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    job = json.loads(Path(args.job).read_text(encoding="utf-8"))
+    return 0 if render(job) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
