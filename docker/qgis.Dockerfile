@@ -1,7 +1,7 @@
 # Headless PyQGIS renderer for map plates.
 # Runs geovision.carto.render (stdlib + qgis only) under a virtual frame buffer.
-# Pin to the current QGIS LTR; verify the tag on Docker Hub before bumping.
-FROM qgis/qgis:release-3_40
+# Pinned to the QGIS LTR used for template design (keep in sync with local QGIS).
+FROM qgis/qgis:3.44.15-noble
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends xvfb fonts-dejavu-core fonts-noto-core \

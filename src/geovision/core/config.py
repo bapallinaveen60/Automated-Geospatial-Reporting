@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     pc_stac_url: str = "https://planetarycomputer.microsoft.com/api/stac/v1"
     typst_bin: str = "typst"
     qgis_image: str = "geovision-qgis:latest"
+    # Path to a local QGIS Python launcher (e.g. python-qgis-ltr.bat). When set, map plates
+    # render with local QGIS instead of the Docker image.
+    qgis_python: str | None = None
     log_level: str = "INFO"
 
 
