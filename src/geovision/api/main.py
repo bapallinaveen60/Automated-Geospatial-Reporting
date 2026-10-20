@@ -13,7 +13,7 @@ import shutil
 import tempfile
 from datetime import date
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,7 +21,22 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, ValidationError
 from shapely.geometry import mapping
 
-from geovision.api.status import list_project_ids, load_request, project_status, report_path
+from geovision.api.status import (
+    ProjectStatus,
+    list_project_ids,
+    load_request,
+    project_status,
+    report_path,
+)
+from geovision.approval import (
+    ApprovalError,
+    ReviewRecord,
+    ReviewSubmission,
+    current_review,
+    final_pdf,
+    read_audit,
+    submit_review,
+)
 from geovision.contracts import AOIRequest, DateRange, MetricsPayload
 from geovision.core.config import get_settings
 from geovision.ingest.aoi import AOIValidationError, read_aoi, validate_aoi
@@ -158,6 +173,21 @@ def _flag_counts(metrics: dict[str, Any] | None) -> dict[str, int]:
     return {sev: sum(f["severity"] == sev for f in flags) for sev in ("critical", "warning")}
 
 
+def _stage(status: ProjectStatus, review: ReviewRecord | None) -> str:
+    """Workflow stage shown to users: processing → needs_review → approved/changes_requested."""
+    if status.state in ("queued", "running"):
+        return "processing"
+    if status.state == "failed":
+        return "failed"
+    return review.decision if review else "needs_review"
+
+
+def _location(metrics: dict[str, Any] | None) -> str | None:
+    site = (metrics or {}).get("site", {})
+    parts = [site.get("district"), site.get("state")]
+    return ", ".join(p for p in parts if p) or None
+
+
 @app.get("/api/projects")
 def list_projects() -> list[dict[str, Any]]:
     root, url = _root(), get_settings().dagster_url
@@ -168,12 +198,16 @@ def list_projects() -> list[dict[str, Any]]:
             continue
         req, submitted = loaded
         status = project_status(pid, root, url)
+        metrics = _read_json(root / pid / "analysis" / "metrics.json")
         out.append(
             {
                 "id": pid,
                 "site_name": req.get("site_name"),
                 "client": req.get("client"),
                 "submitted": submitted.isoformat(),
+                "stage": _stage(status, current_review(root, pid)),
+                "location": _location(metrics),
+                "area_ha": (metrics or {}).get("site", {}).get("area_ha"),
                 "status": {
                     "state": status.state,
                     "label": status.label,
@@ -181,7 +215,7 @@ def list_projects() -> list[dict[str, Any]]:
                     "total": status.total,
                     "engine_online": status.engine_online,
                 },
-                "flags": _flag_counts(_read_json(root / pid / "analysis" / "metrics.json")),
+                "flags": _flag_counts(metrics),
             }
         )
     return sorted(out, key=lambda p: p["submitted"], reverse=True)
@@ -208,14 +242,35 @@ def get_project(project_id: str) -> dict[str, Any]:
         }
         for p in sorted(plates_dir.glob("plate*_*.png"))
     ]
+    review = current_review(root, pid)
+    sources = [
+        {
+            "step": rec["asset_key"],
+            "inputs": len(rec.get("inputs", [])),
+            "licences": sorted({i["licence"] for i in rec.get("inputs", []) if i.get("licence")}),
+            "code_version": rec.get("code_version"),
+            "items": [i["id"] for i in rec.get("inputs", [])][:50],
+        }
+        for rec in lineage.get("records", [])
+    ]
     return {
         "id": pid,
         "site_name": req.get("site_name"),
         "client": req.get("client"),
+        "requested_by": req.get("requested_by"),
         "submitted": submitted.isoformat(),
         "periods": {"baseline": req.get("baseline_period"), "current": req.get("current_period")},
         "geometry": req.get("geometry"),
+        "stage": _stage(status, review),
         "status": status.to_dict(),
+        "review": review.model_dump(mode="json") if review else None,
+        "audit": read_audit(root, pid)[::-1],
+        "sources": sources,
+        "final_report_url": (
+            f"/api/projects/{pid}/report?version=final"
+            if review and review.decision == "approved" and final_pdf(root, pid).exists()
+            else None
+        ),
         "summary": summary_paragraphs(metrics) if metrics else [],
         "metrics": metrics.model_dump(mode="json") if metrics else None,
         "warnings": lineage.get("warnings", []),
@@ -239,10 +294,28 @@ def rerun_project(project_id: str) -> dict[str, str]:
     return {"id": pid}
 
 
-@app.get("/api/projects/{project_id}/report")
-def get_report(project_id: str) -> FileResponse:
+@app.post("/api/projects/{project_id}/review")
+def review_project(project_id: str, body: ReviewSubmission) -> dict[str, Any]:
+    """Record the reviewer's decision; approving issues the final (non-draft) PDF."""
     pid = _check_id(project_id)
-    path = report_path(_root(), pid)
+    try:
+        record = submit_review(_root(), pid, body)
+    except ApprovalError as e:
+        raise HTTPException(409, str(e)) from e
+    return record.model_dump(mode="json")
+
+
+@app.get("/api/projects/{project_id}/report")
+def get_report(project_id: str, version: Literal["draft", "final"] = "draft") -> FileResponse:
+    pid = _check_id(project_id)
+    root = _root()
+    if version == "final":
+        review = current_review(root, pid)
+        path = final_pdf(root, pid)
+        if not review or review.decision != "approved" or not path.exists():
+            raise HTTPException(404, "No approved report for the current draft")
+    else:
+        path = report_path(root, pid)
     if not path.exists():
         raise HTTPException(404, "Report not ready yet")
     return FileResponse(path, media_type="application/pdf", filename=path.name)

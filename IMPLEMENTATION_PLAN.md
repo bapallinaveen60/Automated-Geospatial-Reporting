@@ -176,9 +176,11 @@ geovision/
 - **Exit:** AOI drop → draft PDF fully automatic, with the full lineage graph visible in the Dagster UI.
 
 ### Phase 6 — Human-in-the-loop review (Week 9)
-- [ ] Build a Streamlit review app that lists pending drafts. It shows the PDF, highlights exceedances and anomalous land-cover change, and offers an interactive map (leafmap/folium over the COGs).
-- [ ] Reviewers can add annotations and comments, and override a flag with a required justification.
-- [ ] Approval re-runs only the Typst step with reviewer name, licence number and date, removes the watermark and stores an immutable final PDF and audit log.
+- [x] Web app (React + FastAPI) for non-technical users: project list, new screening with boundary upload and map preview, project page with progress, findings, maps and data sources.
+- [x] Reviewers record a disposition per finding (confirmed / site visit / not applicable with justification) plus name, qualification and registration number.
+- [x] Approval issues the final PDF (no watermark, dispositions and sign-off printed) and appends to an audit log; request-changes is recorded too.
+- [x] Reviews are bound to the draft's SHA-256, so a re-run needs a fresh review.
+- [ ] User accounts and roles (reviewer identity is self-declared today); interactive COG overlays in the review map.
 - **Exit:** the reviewer workflow takes 30 min or less on a test site, and every approval and override is logged.
 
 ### Phase 7 — Validation and hardening (Weeks 10–11)

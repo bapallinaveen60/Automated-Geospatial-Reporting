@@ -1,7 +1,9 @@
 // Typed client for the GeoVision API (src/geovision/api/main.py).
 
 export type State = 'queued' | 'running' | 'ready' | 'failed'
+export type Stage = 'processing' | 'needs_review' | 'approved' | 'changes_requested' | 'failed'
 export type Severity = 'critical' | 'warning' | 'info'
+export type Disposition = 'confirmed' | 'dismissed' | 'site_visit'
 
 export interface Period {
   start: string
@@ -13,8 +15,47 @@ export interface ProjectSummary {
   site_name: string
   client: string
   submitted: string
+  stage: Stage
+  location: string | null
+  area_ha: number | null
   status: { state: State; label: string; completed: number; total: number; engine_online: boolean }
   flags: { critical: number; warning: number }
+}
+
+export interface Reviewer {
+  name: string
+  qualification: string
+  registration_no: string
+  organisation?: string | null
+}
+
+export interface ReviewSubmission {
+  decision: 'approved' | 'changes_requested'
+  reviewer: Reviewer
+  comments: string
+  flag_reviews: Record<string, { disposition: Disposition; note: string }>
+}
+
+export interface ReviewRecord extends ReviewSubmission {
+  decided_at: string
+  draft_sha256: string
+  final_sha256: string | null
+}
+
+export interface AuditEvent {
+  at: string
+  event: string
+  reviewer?: string
+  registration_no?: string
+  comments?: string
+}
+
+export interface SourceStep {
+  step: string
+  inputs: number
+  licences: string[]
+  code_version: string
+  items: string[]
 }
 
 export interface Step {
@@ -57,9 +98,15 @@ export interface ProjectDetail {
   id: string
   site_name: string
   client: string
+  requested_by: string | null
   submitted: string
   periods: { baseline: Period; current: Period }
   geometry: GeoJSON.Geometry
+  stage: Stage
+  review: ReviewRecord | null
+  audit: AuditEvent[]
+  sources: SourceStep[]
+  final_report_url: string | null
   status: {
     state: State
     label: string
@@ -108,6 +155,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
     try {
       const body = await res.json()
       if (typeof body.detail === 'string') message = body.detail
+      else if (Array.isArray(body.detail) && body.detail[0]?.msg) message = body.detail[0].msg
     } catch {
       /* not JSON */
     }
@@ -131,20 +179,35 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     }),
+  review: (id: string, body: ReviewSubmission) =>
+    request<ReviewRecord>(`/api/projects/${encodeURIComponent(id)}/review`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
   rerun: (id: string) =>
     request<{ id: string }>(`/api/projects/${encodeURIComponent(id)}/rerun`, { method: 'POST' }),
 }
 
 export const isActive = (s: State) => s === 'queued' || s === 'running'
 
-export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
+export function formatDate(iso: string, withTime = true): string {
+  return new Date(iso).toLocaleString('en-IN', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}),
   })
+}
+
+export function formatRelative(iso: string): string {
+  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const hours = Math.round(mins / 60)
+  if (hours < 24) return `${hours} h ago`
+  const days = Math.round(hours / 24)
+  return days < 7 ? `${days} d ago` : formatDate(iso, false)
 }
 
 export function formatDistance(m: number): string {

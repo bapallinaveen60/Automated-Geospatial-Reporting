@@ -34,6 +34,8 @@ cd frontend && npm install && npm run build && cd ..
 uv run --extra api uvicorn geovision.api.main:app --port 8000
 ```
 
+**Review and sign-off:** when processing finishes a project shows *Needs review*. A qualified reviewer records a disposition for each finding (Confirmed / Site visit required / Not applicable with justification), enters their name, qualification and registration number, and approves. That issues `<id>_final.pdf` without the draft watermark, with the dispositions and sign-off printed in it, and appends to `review/audit.jsonl`. A review is bound to the SHA-256 of the draft it was made on, so re-running the analysis puts the project back into *Needs review*. Reviewer identity is self-declared until user accounts are added.
+
 Open http://localhost:8000. For frontend development with hot reload, run the API as above and `npm run dev` in `frontend/` (http://localhost:5173, proxies `/api` to :8000).
 
 ## Running reports

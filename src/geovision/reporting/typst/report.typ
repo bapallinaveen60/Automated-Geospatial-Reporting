@@ -62,16 +62,33 @@
   #para
 ]
 
+#let reviews = data.at("flag_reviews", default: (:))
 #if m.flags.len() > 0 {
-  table(
-    columns: (auto, 1fr, auto),
-    [Severity], [Finding], [Reference],
-    ..m.flags.map(f => (
-      text(fill: sev-color.at(f.severity), weight: "bold", upper(f.severity)),
-      f.message,
-      if f.regulation == none { "—" } else { f.regulation },
-    )).flatten(),
-  )
+  if reviews.len() == 0 {
+    table(
+      columns: (auto, 1fr, auto),
+      [Severity], [Finding], [Reference],
+      ..m.flags.map(f => (
+        text(fill: sev-color.at(f.severity), weight: "bold", upper(f.severity)),
+        f.message,
+        if f.regulation == none { "—" } else { f.regulation },
+      )).flatten(),
+    )
+  } else {
+    table(
+      columns: (auto, 1fr, auto, 1fr),
+      [Severity], [Finding], [Reference], [Reviewer disposition],
+      ..m.flags.map(f => {
+        let r = reviews.at(f.rule_id, default: none)
+        (
+          text(fill: sev-color.at(f.severity), weight: "bold", upper(f.severity)),
+          f.message,
+          if f.regulation == none { "—" } else { f.regulation },
+          if r == none { "—" } else [*#r.disposition*#if r.note != "" [ — #r.note]],
+        )
+      }).flatten(),
+    )
+  }
 }
 
 = Site description
@@ -167,10 +184,16 @@ Every figure in this report is traceable to the inputs and code version below.
     [Signature], [#v(1.5cm)],
   )
 ] else [
+  This report was reviewed and approved for issue by:
   #table(
     columns: (auto, 1fr),
     [Reviewed by], [#data.reviewer.name],
-    [Qualification / Reg. No.], [#data.reviewer.qualification],
-    [Date], [#data.reviewer.date],
+    [Qualification], [#data.reviewer.qualification],
+    [Registration No.], [#data.reviewer.registration_no],
+    [Organisation], [#if data.reviewer.at("organisation", default: none) == none [—] else [#data.reviewer.organisation]],
+    [Date of approval], [#data.reviewer.date],
   )
+  #if data.reviewer.at("comments", default: "") != "" [
+    *Reviewer comments.* #data.reviewer.comments
+  ]
 ]

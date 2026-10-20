@@ -1,44 +1,34 @@
-import { Link, NavLink, Route, Routes } from 'react-router-dom'
-import { NewReport } from './pages/NewReport'
-import { ReportDetail } from './pages/ReportDetail'
-import { Reports } from './pages/Reports'
+import { Link, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { AppShell } from './components/AppShell'
+import { NewScreening } from './pages/NewScreening'
+import { ProjectDetail } from './pages/ProjectDetail'
+import { Projects } from './pages/Projects'
+
+function LegacyReportRedirect() {
+  const { id = '' } = useParams()
+  return <Navigate to={`/projects/${id}`} replace />
+}
 
 export default function App() {
   return (
-    <>
-      <header className="topbar">
-        <div className="topbar-inner">
-          <Link to="/" className="logo">
-            <img src="/favicon.svg" width={30} height={30} alt="" />
-            <span>
-              GeoVision
-              <small>Environmental site screening</small>
-            </span>
-          </Link>
-          <nav className="nav">
-            <NavLink to="/" end>
-              Reports
-            </NavLink>
-            <NavLink to="/new">New report</NavLink>
-          </nav>
-        </div>
-      </header>
-      <main>
-        <Routes>
-          <Route path="/" element={<Reports />} />
-          <Route path="/new" element={<NewReport />} />
-          <Route path="/reports/:id" element={<ReportDetail />} />
-          <Route
-            path="*"
-            element={
-              <div className="page">
-                <h1>Page not found</h1>
-                <Link to="/">Back to reports</Link>
-              </div>
-            }
-          />
-        </Routes>
-      </main>
-    </>
+    <AppShell>
+      <Routes>
+        <Route path="/" element={<Projects />} />
+        <Route path="/new" element={<NewScreening />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/reports/:id" element={<LegacyReportRedirect />} />
+        <Route
+          path="*"
+          element={
+            <div className="content">
+              <h1>Page not found</h1>
+              <p className="muted" style={{ marginTop: 8 }}>
+                <Link to="/">Back to projects</Link>
+              </p>
+            </div>
+          }
+        />
+      </Routes>
+    </AppShell>
   )
 }
