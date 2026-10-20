@@ -6,7 +6,7 @@ import pystac
 import xarray as xr
 
 from geovision.analysis.masking import median_composite, to_reflectance
-from geovision.ingest.stac import dn_offsets, item_dn_offset
+from geovision.ingest.stac import dn_offsets, item_dn_offset, publicly_readable
 
 
 def _cube(dates, red, scl):
@@ -70,3 +70,12 @@ def test_dn_offsets_flags_mixed_dates():
     offsets, mixed = dn_offsets(items)
     assert offsets == {"2025-12-13": 0}
     assert mixed == {"2022-02-02"}
+
+
+def test_requester_pays_items_are_not_public():
+    item = _item("a", "2021-11-27", "03.01")
+    for band in ("red", "green", "nir", "swir16", "scl"):
+        item.add_asset(band, pystac.Asset(f"https://sentinel-cogs.example/{band}.tif"))
+    assert publicly_readable(item)
+    item.assets["scl"] = pystac.Asset("s3://sentinel-s2-l2a/tiles/46/R/CP/SCL.jp2")
+    assert not publicly_readable(item)

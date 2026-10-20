@@ -1,0 +1,997 @@
+{
+  "generated": "2026-10-20 13:26 UTC",
+  "summary": {
+    "qgis": {
+      "compared": 98,
+      "passed": 98,
+      "failed": 0
+    },
+    "manual": {
+      "compared": 0,
+      "passed": 0,
+      "failed": 0
+    }
+  },
+  "rows": [
+    {
+      "site_id": "val-ameenpur",
+      "metric": "site.area_ha",
+      "pipeline": 41.180403370679215,
+      "qgis": 41.13084414556027,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal area"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "site.perimeter_m",
+      "pipeline": 2594.8566406927303,
+      "qgis": 2593.294757378739,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal length"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "lulc.10.percent",
+      "pipeline": 2.866861030126336,
+      "qgis": 2.866861030126336,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "lulc.30.percent",
+      "pipeline": 23.323615160349853,
+      "qgis": 23.323615160349853,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "lulc.40.percent",
+      "pipeline": 10.592808551992226,
+      "qgis": 10.592808551992226,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "lulc.50.percent",
+      "pipeline": 60.30126336248785,
+      "qgis": 60.30126336248785,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "lulc.60.percent",
+      "pipeline": 2.9154518950437316,
+      "qgis": 2.9154518950437316,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "indices.mndwi.median",
+      "pipeline": -0.298381045460701,
+      "qgis": -0.298381045460701,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 MNDWI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "indices.ndvi.median",
+      "pipeline": 0.22185728698968887,
+      "qgis": 0.22185728698968887,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 NDVI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "change.ndvi.gain_ha",
+      "pipeline": 3.3200000000000003,
+      "qgis": 3.3200000000000003,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "change.ndvi.loss_ha",
+      "pipeline": 3.34,
+      "qgis": 3.34,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "proximity.coastline.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "proximity.coastline.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "proximity.forest.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "proximity.forest.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "proximity.protected_areas.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "proximity.protected_areas.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "proximity.wetlands_water.distance_m",
+      "pipeline": 48.522476749465355,
+      "qgis": 48.493135670505154,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-ameenpur",
+      "metric": "proximity.wetlands_water.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "site.area_ha",
+      "pipeline": 40.789811892458594,
+      "qgis": 40.77748799495697,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal area"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "site.perimeter_m",
+      "pipeline": 2580.854988020418,
+      "qgis": 2580.465077397504,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal length"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "lulc.10.percent",
+      "pipeline": 9.7412109375,
+      "qgis": 9.7412109375,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "lulc.30.percent",
+      "pipeline": 1.46484375,
+      "qgis": 1.46484375,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "lulc.40.percent",
+      "pipeline": 5.1025390625,
+      "qgis": 5.1025390625,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "lulc.50.percent",
+      "pipeline": 11.5234375,
+      "qgis": 11.5234375,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "lulc.60.percent",
+      "pipeline": 0.0244140625,
+      "qgis": 0.0244140625,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "lulc.80.percent",
+      "pipeline": 6.3720703125,
+      "qgis": 6.3720703125,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "lulc.95.percent",
+      "pipeline": 65.771484375,
+      "qgis": 65.771484375,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "indices.mndwi.median",
+      "pipeline": -0.35568001866340637,
+      "qgis": -0.35568001866340637,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 MNDWI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "indices.ndvi.median",
+      "pipeline": 0.5362013578414917,
+      "qgis": 0.5362013578414917,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 NDVI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "change.ndvi.gain_ha",
+      "pipeline": 4.1,
+      "qgis": 4.1,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "change.ndvi.loss_ha",
+      "pipeline": 0.85,
+      "qgis": 0.85,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "proximity.coastline.distance_m",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "proximity.coastline.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "proximity.forest.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "proximity.forest.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "proximity.protected_areas.distance_m",
+      "pipeline": 748.5783060813872,
+      "qgis": 748.4625731930579,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "proximity.protected_areas.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "proximity.wetlands_water.distance_m",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-vashi-creek",
+      "metric": "proximity.wetlands_water.overlap_ha",
+      "pipeline": 26.430166389628383,
+      "qgis": 26.422161027783346,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "site.area_ha",
+      "pipeline": 42.081979922105354,
+      "qgis": 42.033478800177576,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal area"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "site.perimeter_m",
+      "pipeline": 2627.604028046408,
+      "qgis": 2626.0893813290463,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal length"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "lulc.10.percent",
+      "pipeline": 50.03563791874554,
+      "qgis": 50.03563791874554,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "lulc.20.percent",
+      "pipeline": 6.414825374198147,
+      "qgis": 6.414825374198147,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "lulc.30.percent",
+      "pipeline": 3.2549299120931336,
+      "qgis": 3.2549299120931336,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "lulc.40.percent",
+      "pipeline": 6.86623901164172,
+      "qgis": 6.86623901164172,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "lulc.50.percent",
+      "pipeline": 31.52767878355904,
+      "qgis": 31.52767878355904,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "lulc.60.percent",
+      "pipeline": 0.11879306248515087,
+      "qgis": 0.11879306248515087,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "lulc.80.percent",
+      "pipeline": 1.781895937277263,
+      "qgis": 1.781895937277263,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "indices.mndwi.median",
+      "pipeline": -0.50213623046875,
+      "qgis": -0.50213623046875,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 MNDWI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "indices.ndvi.median",
+      "pipeline": 0.4489072561264038,
+      "qgis": 0.4489072561264038,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 NDVI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "change.ndvi.gain_ha",
+      "pipeline": 1.29,
+      "qgis": 1.29,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "change.ndvi.loss_ha",
+      "pipeline": 3.74,
+      "qgis": 3.74,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "proximity.coastline.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "proximity.coastline.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "proximity.forest.distance_m",
+      "pipeline": 2.3240870497609434,
+      "qgis": 2.3227418546981844,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "proximity.forest.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "proximity.protected_areas.distance_m",
+      "pipeline": 1168.7272146226799,
+      "qgis": 1168.0600899120184,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "proximity.protected_areas.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "proximity.wetlands_water.distance_m",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-bannerghatta",
+      "metric": "proximity.wetlands_water.overlap_ha",
+      "pipeline": 1.4004055570598934,
+      "qgis": 1.3987870598022634,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "site.area_ha",
+      "pipeline": 38.765089102533224,
+      "qgis": 38.77850036096573,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal area"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "site.perimeter_m",
+      "pipeline": 2507.5384335142935,
+      "qgis": 2507.972150938009,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal length"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "lulc.10.percent",
+      "pipeline": 16.135716135716137,
+      "qgis": 16.135716135716137,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "lulc.30.percent",
+      "pipeline": 3.677803677803678,
+      "qgis": 3.677803677803678,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "lulc.40.percent",
+      "pipeline": 71.17327117327117,
+      "qgis": 71.17327117327117,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "lulc.90.percent",
+      "pipeline": 9.013209013209012,
+      "qgis": 9.013209013209012,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "indices.mndwi.median",
+      "pipeline": -0.411301851272583,
+      "qgis": -0.411301851272583,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 MNDWI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "indices.ndvi.median",
+      "pipeline": 0.5026758909225464,
+      "qgis": 0.5026758909225464,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 NDVI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "change.ndvi.gain_ha",
+      "pipeline": 6.58,
+      "qgis": 6.58,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "change.ndvi.loss_ha",
+      "pipeline": 4.28,
+      "qgis": 4.28,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "proximity.coastline.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "proximity.coastline.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "proximity.forest.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "proximity.forest.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "proximity.protected_areas.distance_m",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "proximity.protected_areas.overlap_ha",
+      "pipeline": 24.63369778378472,
+      "qgis": 24.642227113174584,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "proximity.wetlands_water.distance_m",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-deepor-beel",
+      "metric": "proximity.wetlands_water.overlap_ha",
+      "pipeline": 5.804306079625612,
+      "qgis": 5.8063205895497045,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "site.area_ha",
+      "pipeline": 37.1092424164653,
+      "qgis": 37.13479647769928,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal area"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "site.perimeter_m",
+      "pipeline": 2447.6255383869734,
+      "qgis": 2448.4681300394213,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5%: planar UTM vs ellipsoidal length"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "lulc.10.percent",
+      "pipeline": 0.7063298016843249,
+      "qgis": 0.7063298016843249,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "lulc.20.percent",
+      "pipeline": 0.21733224667209997,
+      "qgis": 0.21733224667209997,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "lulc.30.percent",
+      "pipeline": 1.3311600108666124,
+      "qgis": 1.3311600108666124,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "lulc.40.percent",
+      "pipeline": 97.58217875577289,
+      "qgis": 97.58217875577289,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "lulc.50.percent",
+      "pipeline": 0.16299918500407498,
+      "qgis": 0.16299918500407498,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "1 percentage point of site area"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "indices.mndwi.median",
+      "pipeline": -0.401615709066391,
+      "qgis": -0.401615709066391,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 MNDWI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "indices.ndvi.median",
+      "pipeline": 0.27276286482810974,
+      "qgis": 0.27276286482810974,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 NDVI: single-scene manual vs median composite"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "change.ndvi.gain_ha",
+      "pipeline": 0.38,
+      "qgis": 0.38,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "change.ndvi.loss_ha",
+      "pipeline": 8.03,
+      "qgis": 8.03,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.5 ha or 25%: two-scene manual vs composites"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "proximity.coastline.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "proximity.coastline.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "proximity.forest.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "proximity.forest.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "proximity.protected_areas.distance_m",
+      "pipeline": null,
+      "qgis": null,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "proximity.protected_areas.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "proximity.wetlands_water.distance_m",
+      "pipeline": 1219.802093061369,
+      "qgis": 1220.2200760413843,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "15 m: one to two 10 m pixels"
+    },
+    {
+      "site_id": "val-ludhiana-farm",
+      "metric": "proximity.wetlands_water.overlap_ha",
+      "pipeline": 0.0,
+      "qgis": 0.0,
+      "qgis_ok": true,
+      "manual": null,
+      "manual_ok": null,
+      "tolerance": "0.05 ha or 5%"
+    }
+  ]
+}

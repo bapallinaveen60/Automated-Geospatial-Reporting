@@ -184,11 +184,15 @@ geovision/
 - **Exit:** the reviewer workflow takes 30 min or less on a test site, and every approval and override is logged.
 
 ### Phase 7 — Validation and hardening (Weeks 10–11)
-- [ ] **Parallel-run validation:** compare pipeline output with manual QGIS results on 5 or more sites (areas, percentages, buffer distances) within a documented tolerance, aiming for exact match on vector math.
+- [x] Five validation sites covering each rule (`validation/sites.json`): peri-urban lake edge (Ameenpur), coastal mangroves (Vashi creek), protected-area proximity (Bannerghatta), Ramsar wetland (Deepor Beel), cropland (Ludhiana).
+- [x] Automated QGIS cross-check recomputing every metric with QGIS algorithms from the pipeline's saved inputs (`scripts/validation_qgis_crosscheck.py`).
+- [x] Tolerances, comparison engine and generated report (`validation/REPORT.md`).
+- [x] Manual protocol and baseline template for an independent analyst (`validation/MANUAL_PROTOCOL.md`, `validation/baselines/manual_baseline.csv`).
+- [ ] **Analyst completes the manual baselines** (8–10 h); investigate and fix every failure; sign off the validation report.
 - [ ] Edge cases: AOI crossing UTM zones, tiny or huge AOIs, 100% cloud periods (fallback date window), missing vector coverage, and slivers.
-- [ ] Performance: profile and tune Dask chunking. Run AOIs concurrently.
-- [ ] Write runbooks for failure handling, manual override and adding a new layer.
-- **Exit:** a validation report signed off, and benchmarks recorded (time and cost per report).
+- [ ] Performance: profile and tune Dask chunking; cache OSM queries.
+- [ ] Runbooks for failure handling, manual override and adding a new layer.
+- **Exit:** the validation report shows all automated and manual checks within tolerance (or explained), with the analyst's sign-off.
 
 ### Phase 8 — Client deployment kit and demo (Week 12)
 - [ ] Terraform for one cloud (start with AWS: S3, ECS Fargate, RDS PostGIS, Dagster+, Secrets Manager).

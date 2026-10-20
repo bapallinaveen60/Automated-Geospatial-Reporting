@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "val-vashi-creek",
+        "name": "Thane Creek edge, Vashi, Navi Mumbai, Maharashtra"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.99,
+              19.06
+            ],
+            [
+              72.997,
+              19.06
+            ],
+            [
+              72.997,
+              19.065
+            ],
+            [
+              72.99,
+              19.065
+            ],
+            [
+              72.99,
+              19.06
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -54,6 +54,15 @@ def load_s2(
     )
 
 
+def publicly_readable(item: pystac.Item, bands: Sequence[str] = S2_BANDS) -> bool:
+    """True if every needed band is an anonymous HTTPS COG.
+
+    A few Earth Search items still point at the requester-pays ``s3://sentinel-s2-l2a`` JP2
+    archive, which needs paid AWS credentials.
+    """
+    return all(b in item.assets and item.assets[b].href.startswith("https://") for b in bands)
+
+
 def item_dn_offset(item: pystac.Item) -> int:
     """DN offset still present in an item's pixel values.
 

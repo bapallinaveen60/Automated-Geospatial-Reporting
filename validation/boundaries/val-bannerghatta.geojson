@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "val-bannerghatta",
+        "name": "Kalkere, north of Bannerghatta NP, Bengaluru Urban, Karnataka"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              77.585,
+              12.83
+            ],
+            [
+              77.592,
+              12.83
+            ],
+            [
+              77.592,
+              12.835
+            ],
+            [
+              77.585,
+              12.835
+            ],
+            [
+              77.585,
+              12.83
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

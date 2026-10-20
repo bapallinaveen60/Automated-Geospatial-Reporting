@@ -1,0 +1,37 @@
+{
+  "description": "Phase 7 validation sites. Each is a ~0.007° x 0.005° rectangle (~40 ha) chosen to exercise a different screening rule. Periods: dry season (Oct-Mar) 2021-22 vs 2025-26.",
+  "baseline_period": {"start": "2021-10-01", "end": "2022-03-31"},
+  "current_period": {"start": "2025-10-01", "end": "2026-03-31"},
+  "sites": [
+    {
+      "id": "val-ameenpur",
+      "name": "Ameenpur urban fringe, Sangareddy, Telangana",
+      "purpose": "Peri-urban land cover mix; lake 50 m away (wetland buffer rule)",
+      "centre": [78.3185, 17.5305]
+    },
+    {
+      "id": "val-vashi-creek",
+      "name": "Thane Creek edge, Vashi, Navi Mumbai, Maharashtra",
+      "purpose": "Coastal mangroves and tidal creek (CRZ and mangrove rules)",
+      "centre": [72.9935, 19.0625]
+    },
+    {
+      "id": "val-bannerghatta",
+      "name": "Kalkere, north of Bannerghatta NP, Bengaluru Urban, Karnataka",
+      "purpose": "Protected area within 10 km (EIA General Condition)",
+      "centre": [77.5885, 12.8325]
+    },
+    {
+      "id": "val-deepor-beel",
+      "name": "North shore of Deepor Beel (Ramsar site), Guwahati, Assam",
+      "purpose": "Large wetland and seasonal water (wetland and water-share rules, MNDWI)",
+      "centre": [91.6435, 26.1325]
+    },
+    {
+      "id": "val-ludhiana-farm",
+      "name": "Farmland near Mohi, Ludhiana, Punjab",
+      "purpose": "Cropland-dominated site; crop-cycle NDVI change",
+      "centre": [75.7035, 30.8025]
+    }
+  ]
+}

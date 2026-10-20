@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "val-deepor-beel",
+        "name": "North shore of Deepor Beel (Ramsar site), Guwahati, Assam"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              91.64,
+              26.13
+            ],
+            [
+              91.647,
+              26.13
+            ],
+            [
+              91.647,
+              26.135
+            ],
+            [
+              91.64,
+              26.135
+            ],
+            [
+              91.64,
+              26.13
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

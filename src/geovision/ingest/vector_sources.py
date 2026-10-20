@@ -11,11 +11,18 @@ from pathlib import Path
 from typing import Any, Protocol
 
 import geopandas as gpd
+import requests
 import shapely
 
 from geovision.contracts.lineage import InputRef
 
 WGS84 = "EPSG:4326"
+# Public Overpass instances, tried in order when one is overloaded or unreachable.
+OVERPASS_ENDPOINTS = (
+    "https://overpass-api.de/api",
+    "https://overpass.private.coffee/api",
+    "https://maps.mail.ru/osm/tools/overpass/api",
+)
 
 
 class VectorSource(Protocol):
@@ -62,10 +69,23 @@ class OSMSource:
         import osmnx as ox
 
         west, south, east, north = bbox
-        try:
-            gdf = ox.features.features_from_bbox(bbox=(west, south, east, north), tags=self.tags)
-        except ox._errors.InsufficientResponseError:
-            gdf = gpd.GeoDataFrame(columns=["geometry"], geometry="geometry", crs=WGS84)
+        last_error: Exception | None = None
+        for endpoint in OVERPASS_ENDPOINTS:
+            ox.settings.overpass_url = endpoint
+            ox.settings.requests_timeout = 90
+            try:
+                gdf = ox.features.features_from_bbox(
+                    bbox=(west, south, east, north), tags=self.tags
+                )
+                break
+            except ox._errors.InsufficientResponseError:
+                gdf = gpd.GeoDataFrame(columns=["geometry"], geometry="geometry", crs=WGS84)
+                break
+            except (requests.RequestException, ox._errors.ResponseStatusCodeError) as e:
+                last_error = e  # try the next mirror
+        else:
+            raise RuntimeError(f"All Overpass endpoints failed: {last_error}") from last_error
+        self._retrieved = ox.settings.overpass_url
         gdf = gdf.reset_index()
         gdf = gdf[gdf.geometry.geom_type.isin(self.geom_types)]
         return _normalise(gdf, self.name_field)
@@ -74,7 +94,7 @@ class OSMSource:
         return InputRef(
             kind="vector_source",
             id=self.key,
-            href="https://overpass-api.de/",
+            href=self._retrieved or OVERPASS_ENDPOINTS[0],
             licence="ODbL 1.0 (© OpenStreetMap contributors)",
             extra={"tags": self.tags},
         )

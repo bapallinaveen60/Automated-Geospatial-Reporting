@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "val-ludhiana-farm",
+        "name": "Farmland near Mohi, Ludhiana, Punjab"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.7,
+              30.8
+            ],
+            [
+              75.707,
+              30.8
+            ],
+            [
+              75.707,
+              30.805
+            ],
+            [
+              75.7,
+              30.805
+            ],
+            [
+              75.7,
+              30.8
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

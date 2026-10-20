@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "val-ameenpur",
+        "name": "Ameenpur urban fringe, Sangareddy, Telangana"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.315,
+              17.528
+            ],
+            [
+              78.322,
+              17.528
+            ],
+            [
+              78.322,
+              17.533
+            ],
+            [
+              78.315,
+              17.533
+            ],
+            [
+              78.315,
+              17.528
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -78,6 +78,18 @@ External tools:
 | QGIS 3.44 LTR | Map plates (local renderer); designing `.qpt` / `.qml` | qgis.org |
 | Docker Desktop | Containerised QGIS renderer, dev stack (optional locally) | docker.com |
 
+## Validation (Phase 7)
+
+Five reference sites (`validation/sites.json`) are screened by the pipeline and checked two ways: an automated QGIS recomputation from the same inputs, and an independent analyst's manual QGIS workflow (`validation/MANUAL_PROTOCOL.md`).
+
+```bash
+uv run python scripts/validation_run_pipeline.py
+"C:/Program Files/QGIS 3.44.15/bin/python-qgis-ltr.bat" scripts/validation_qgis_crosscheck.py data/runs val-ameenpur val-vashi-creek val-bannerghatta val-deepor-beel val-ludhiana-farm
+uv run python scripts/validation_report.py      # -> validation/REPORT.md
+```
+
+The analyst fills in `validation/baselines/manual_baseline.csv`; re-running the report adds their comparison and flag agreement.
+
 ## Layout
 
 ```

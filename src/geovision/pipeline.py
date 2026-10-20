@@ -35,7 +35,7 @@ from geovision.core.provenance import git_sha, package_versions, utcnow
 from geovision.ingest.admin import AdminLocation, reverse_admin
 from geovision.ingest.aoi import ValidatedAOI, read_aoi, validate_aoi
 from geovision.ingest.raster_sources import ESA_WORLDCOVER, load_thematic
-from geovision.ingest.stac import dn_offsets, item_refs, load_s2, search_s2
+from geovision.ingest.stac import dn_offsets, item_refs, load_s2, publicly_readable, search_s2
 from geovision.ingest.vector_sources import build_source
 from geovision.modules import ModuleConfig, load_module
 
@@ -117,7 +117,13 @@ def _s2_indices(
         raise LookupError(f"No Sentinel-2 scenes below {max_cloud}% cloud for {period.to_stac()}")
     # Same-day scenes are merged, so a date mixing offset conventions can't be corrected.
     _, mixed = dn_offsets(found)
-    usable = [it for it in found if it.datetime and it.datetime.date().isoformat() not in mixed]
+    usable = [
+        it
+        for it in found
+        if it.datetime and it.datetime.date().isoformat() not in mixed and publicly_readable(it)
+    ]
+    if len(usable) < len(found):
+        log.info("Skipped %d scene(s): mixed offsets or not public", len(found) - len(usable))
     if not usable:
         raise LookupError(f"No consistently processed Sentinel-2 scenes for {period.to_stac()}")
     items = _least_cloudy(pystac.ItemCollection(usable), max_scenes)
@@ -209,6 +215,10 @@ def stage_imagery(
         path = work_dir / "rasters" / f"ndvi_{label}.tif"
         grids[label]["ndvi"].astype("float32").rio.write_crs(crs).rio.to_raster(path)
         out.files[f"ndvi_{label}"] = path
+        if label == "current":  # kept for independent re-checks (validation)
+            path = work_dir / "rasters" / "mndwi_current.tif"
+            grids[label]["mndwi"].astype("float32").rio.write_crs(crs).rio.to_raster(path)
+            out.files["mndwi_current"] = path
 
     if {"baseline", "current"} <= set(grids):
         delta = (grids["current"]["ndvi"] - grids["baseline"]["ndvi"]).astype("float32")
