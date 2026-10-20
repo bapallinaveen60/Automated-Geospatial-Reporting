@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     # Path to a local QGIS Python launcher (e.g. python-qgis-ltr.bat). When set, map plates
     # render with local QGIS instead of the Docker image.
     qgis_python: str | None = None
+    # Dagster webserver, queried by the web app for run progress.
+    dagster_url: str = "http://127.0.0.1:3000"
     log_level: str = "INFO"
 
 

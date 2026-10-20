@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install
-        run: uv sync --group dev --extra orchestration
+        run: uv sync --group dev --extra orchestration --extra api
       - name: Lint
         run: uv run ruff check . && uv run ruff format --check .
       - name: Types
@@ -28,3 +28,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build QGIS renderer image
         run: docker build -f docker/qgis.Dockerfile -t geovision-qgis:ci .
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build

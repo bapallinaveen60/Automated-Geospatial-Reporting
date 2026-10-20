@@ -22,8 +22,19 @@ Optional extras:
 
 ```bash
 uv sync --extra orchestration      # Dagster
-uv sync --extra review             # Streamlit review app
+uv sync --extra api                # web app backend (FastAPI)
 ```
+
+## Web app (for consultants)
+
+A simple React app for non-technical users: **Reports** (all projects with plain-language progress), **New report** (upload a KML / GeoJSON / zipped Shapefile boundary, preview it on a map, submit), and **Report detail** (progress steps, summary, findings, key figures, maps, PDF download). It submits requests to Dagster's `incoming/` folder and reads progress from Dagster, so `dagster dev` must be running for reports to be processed.
+
+```bash
+cd frontend && npm install && npm run build && cd ..
+uv run --extra api uvicorn geovision.api.main:app --port 8000
+```
+
+Open http://localhost:8000. For frontend development with hot reload, run the API as above and `npm run dev` in `frontend/` (http://localhost:5173, proxies `/api` to :8000).
 
 ## Running reports
 
@@ -76,7 +87,7 @@ src/geovision/
   carto/         headless PyQGIS renderer (runs in docker/qgis.Dockerfile), templates, styles
   reporting/     payload builder, Typst template + compiler
   orchestration/ Dagster assets, sensor, job
-  review/        Streamlit HITL review app
+  api/           FastAPI backend for the web app (frontend/ = React + TypeScript)
   modules/       compliance modules (site_screening_in/module.yaml)
 ```
 
