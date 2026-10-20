@@ -27,8 +27,10 @@ def mndwi(ds: xr.Dataset) -> xr.DataArray:
     return normalized_difference(ds["green"], ds["swir16"]).rename("mndwi")
 
 
-def index_stats(values: np.ndarray | xr.DataArray) -> IndexStats:
-    arr = np.asarray(values, dtype="float64").ravel()
+def index_stats(values: np.ndarray | xr.DataArray, within: np.ndarray | None = None) -> IndexStats:
+    """Summary stats; ``within`` (bool mask) restricts the denominator to the site's pixels."""
+    arr = np.asarray(values, dtype="float64")
+    arr = arr[within] if within is not None else arr.ravel()
     total = arr.size
     finite = arr[np.isfinite(arr)]
     if finite.size == 0:

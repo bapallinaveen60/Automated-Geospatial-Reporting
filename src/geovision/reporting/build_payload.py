@@ -17,6 +17,7 @@ def build_payload(
     charts: list[dict[str, str]] | None = None,
     draft: bool = True,
     reviewer: dict[str, str] | None = None,
+    warnings: list[str] | None = None,
 ) -> dict[str, Any]:
     return {
         "draft": draft,
@@ -39,4 +40,5 @@ def build_payload(
         "charts": charts or [],
         "lineage": [rec.model_dump(mode="json") for rec in (lineage or [])],
         "reviewer": reviewer,
+        "warnings": warnings or [],
     }

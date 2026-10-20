@@ -28,3 +28,9 @@ def test_median_composite_masks_clouds():
     )
     comp = median_composite(ds, ["red"])
     np.testing.assert_allclose(comp["red"].values, [0.15, 0.3])
+
+
+def test_non_positive_reflectance_is_masked_not_clipped():
+    ds = _cube(["2023-06-01"], [[900, 1500]], [[4, 4]])
+    out = to_reflectance(ds, ["red"], {"2023-06-01": "05.09"})
+    assert np.isnan(out["red"].values[0, 0])  # 900 - 1000 < 0

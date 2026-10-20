@@ -1,5 +1,6 @@
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 from pyproj import CRS
 from shapely.geometry import box
 
@@ -45,3 +46,13 @@ def test_area_within_dissolves_overlaps():
         [box(500000, 2000000, 500100, 2000100), box(500050, 2000000, 500100, 2000100)], ["a", "b"]
     )
     assert abs(area_within_ha(feats, zone, UTM) - 1.0) < 1e-3
+
+
+def test_proximity_missing_name_is_none():
+    feats = gpd.GeoDataFrame(
+        {"name": pd.array([None], dtype="string")},
+        geometry=[box(500150, 2000000, 500200, 2000100)],
+        crs=UTM,
+    ).to_crs(4326)
+    res = proximity(SITE, feats, UTM, "wetlands_water", search_radius_m=1000)
+    assert res.nearest_name is None

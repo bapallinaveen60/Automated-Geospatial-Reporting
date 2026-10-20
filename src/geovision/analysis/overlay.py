@@ -2,6 +2,7 @@
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import shapely
 import xarray as xr
 from pyproj import CRS
@@ -74,7 +75,7 @@ def proximity(
         )
     overlap = shapely.intersection(site_utm, shapely.union_all(f.geometry.values)).area
     name = f["name"].iloc[i] if "name" in f.columns else None
-    if isinstance(name, float) and np.isnan(name):
+    if name is not None and pd.isna(name):
         name = None
     return ProximityResult(
         layer=layer,

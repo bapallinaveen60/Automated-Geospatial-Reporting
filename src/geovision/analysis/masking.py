@@ -26,7 +26,11 @@ def _offset_for(date: str, baseline: str | None) -> int:
 def to_reflectance(
     ds: xr.Dataset, bands: Sequence[str], baselines: dict[str, str] | None = None
 ) -> xr.Dataset:
-    """Convert DNs to surface reflectance per time slice. DN 0 (no data) becomes NaN."""
+    """Convert DNs to surface reflectance per time slice.
+
+    DN 0 (no data) and non-positive reflectance after the offset become NaN; clipping them
+    to 0 instead would push NDVI/MNDWI to exactly ±1.
+    """
     baselines = baselines or {}
     dates = [str(d)[:10] for d in ds["time"].values]
     offsets = xr.DataArray(
@@ -35,7 +39,8 @@ def to_reflectance(
     out = ds.copy()
     for b in bands:
         dn = ds[b].where(ds[b] != 0)
-        out[b] = ((dn - offsets) * REFLECTANCE_SCALE).clip(min=0)
+        refl = (dn - offsets) * REFLECTANCE_SCALE
+        out[b] = refl.where(refl > 0)
     return out
 
 

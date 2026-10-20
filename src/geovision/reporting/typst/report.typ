@@ -30,7 +30,7 @@
     rotate(-45deg, text(72pt, weight: "bold", fill: rgb(180, 35, 24, 30))[DRAFT])
   },
 )
-#set text(font: ("Noto Sans", "DejaVu Sans", "Libertinus Serif"), size: 10pt)
+#set text(font: ("Noto Sans", "DejaVu Sans", "Segoe UI", "Arial", "Libertinus Serif"), size: 10pt)
 #set heading(numbering: "1.")
 #set table(stroke: 0.5pt + luma(190), inset: 6pt)
 #show table.cell.where(y: 0): set text(weight: "bold")
@@ -140,6 +140,7 @@ The site covers *#fmt(m.site.area_ha) ha*
 Every figure in this report is traceable to the inputs and code version below.
 #if data.lineage.len() == 0 [Lineage records not attached.] else {
   for rec in data.lineage [
+    #parbreak()
     *#rec.asset_key* — code #raw(rec.code_version), #rec.inputs.len() input(s)
     #list(..rec.inputs.slice(0, calc.min(rec.inputs.len(), 8)).map(i => [
       #i.kind: #raw(i.id)#if i.licence != none [ (#i.licence)]
@@ -149,6 +150,11 @@ Every figure in this report is traceable to the inputs and code version below.
 
 = Limitations
 #data.module.disclaimer
+
+#if data.at("warnings", default: ()).len() > 0 [
+  *Processing notes for the reviewer:*
+  #list(..data.warnings)
+]
 
 = Review and approval
 #if data.reviewer == none [

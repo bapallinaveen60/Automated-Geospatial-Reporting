@@ -35,3 +35,9 @@ def test_change_summary_areas():
     ch = change_summary(base, cur, "ndvi", threshold=0.15, pixel_area_m2=100)
     assert ch.loss_ha == 0.01  # one 10 m pixel
     assert ch.gain_ha == 0.01
+
+
+def test_index_stats_within_mask_sets_denominator():
+    values = np.array([[0.2, np.nan], [np.nan, np.nan]])
+    inside = np.array([[True, True], [False, False]])
+    assert index_stats(values, within=inside).valid_fraction == 0.5
