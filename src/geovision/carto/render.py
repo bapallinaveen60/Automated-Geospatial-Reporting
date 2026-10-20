@@ -47,6 +47,7 @@ def render(job: dict) -> bool:
         QgsLayoutItemLegend,
         QgsLayoutItemMap,
         QgsLayoutItemScaleBar,
+        QgsMapLayerLegendUtils,
         QgsPrintLayout,
         QgsProject,
         QgsRasterLayer,
@@ -54,6 +55,7 @@ def render(job: dict) -> bool:
         QgsRectangle,
         QgsVectorLayer,
     )
+    from qgis.PyQt.QtCore import Qt
     from qgis.PyQt.QtXml import QDomDocument
 
     qgs = QgsApplication([], False)
@@ -66,6 +68,7 @@ def render(job: dict) -> bool:
         # Add bottom-most first so the first listed layer ends up on top.
         specs = list(reversed(job.get("layers", [])))
         legend_hidden: list[str] = []  # layer ids kept out of the legend (basemaps)
+        keep_by_layer: dict[str, set[str]] = {}  # layer id -> legend class labels to show
         if job.get("basemap"):
             specs.insert(0, {**job["basemap"], "kind": "xyz"})
         for spec in specs:
@@ -86,6 +89,8 @@ def render(job: dict) -> bool:
             project.addMapLayer(layer)
             if spec["kind"] == "xyz":
                 legend_hidden.append(layer.id())
+            if spec.get("legend_keep") is not None:
+                keep_by_layer[layer.id()] = set(spec["legend_keep"])
 
         layout = QgsPrintLayout(project)
         doc = QDomDocument()
@@ -98,13 +103,31 @@ def render(job: dict) -> bool:
                 item.setText(text)
 
         legend = layout.itemById("Legend")
-        if isinstance(legend, QgsLayoutItemLegend) and legend_hidden:
+        if isinstance(legend, QgsLayoutItemLegend):
             legend.setAutoUpdateModel(False)
-            root = legend.model().rootGroup()
+            model = legend.model()
+            root = model.rootGroup()
             for layer_id in legend_hidden:
                 node = root.findLayer(layer_id)
                 if node is not None:
                     root.removeChildNode(node)
+            # Raster legends start with a "Band 1: … (Gray)" line; drop it, and keep only
+            # the classes a job lists in "legend_keep" (e.g. land-cover classes on the map).
+            for node in root.findLayers():
+                if not isinstance(node.layer(), QgsRasterLayer):
+                    continue
+                keep_labels = keep_by_layer.get(node.layer().id())
+                entries = model.layerLegendNodes(node)
+                order = []
+                for i, entry in enumerate(entries):
+                    text = str(entry.data(Qt.DisplayRole) or "")
+                    if text.startswith("Band "):
+                        continue
+                    if keep_labels is not None and text not in keep_labels:
+                        continue
+                    order.append(i)
+                QgsMapLayerLegendUtils.setLegendNodeOrder(node, order)
+                model.refreshLayerLegend(node)
             legend.adjustBoxSize()
 
         map_item = layout.itemById("MainMap")

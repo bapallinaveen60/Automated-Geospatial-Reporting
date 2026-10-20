@@ -35,6 +35,7 @@ from qgis.core import (  # noqa: E402
     QgsLayoutSize,
     QgsLegendStyle,
     QgsLineSymbol,
+    QgsPalettedRasterRenderer,
     QgsPrintLayout,
     QgsProject,
     QgsRasterLayer,
@@ -204,6 +205,8 @@ def make_styles() -> None:
         QgsSingleSymbolRenderer(QgsLineSymbol.createSimple({"color": "#0e7490", "width": "0.6"})),
     )
     _save_ndvi_style()
+    _save_worldcover_style()
+    _save_ndvi_change_style()
 
 
 def _save_ndvi_style() -> None:
@@ -239,6 +242,74 @@ def _save_ndvi_style() -> None:
     msg, ok = layer.saveNamedStyle(str(STYLES / "ndvi.qml"))
     if not ok:
         raise RuntimeError(f"Failed to save NDVI style: {msg}")
+
+
+def _temp_raster(name: str, gdal_type: int) -> QgsRasterLayer:
+    from osgeo import gdal
+
+    gdal.UseExceptions()
+    tmp = Path(tempfile.mkdtemp()) / f"{name}.tif"
+    ds = gdal.GetDriverByName("GTiff").Create(str(tmp), 2, 2, 1, gdal_type)
+    ds.SetGeoTransform([0, 1, 0, 0, 0, -1])
+    ds.SetProjection("EPSG:4326")
+    ds = None
+    return QgsRasterLayer(str(tmp), name, "gdal")
+
+
+# ESA WorldCover v200 legend colours.
+WORLDCOVER_CLASSES = [
+    (10, "#006400", "Tree cover"),
+    (20, "#ffbb22", "Shrubland"),
+    (30, "#ffff4c", "Grassland"),
+    (40, "#f096ff", "Cropland"),
+    (50, "#fa0000", "Built-up"),
+    (60, "#b4b4b4", "Bare / sparse vegetation"),
+    (70, "#f0f0f0", "Snow and ice"),
+    (80, "#0064c8", "Permanent water bodies"),
+    (90, "#0096a0", "Herbaceous wetland"),
+    (95, "#00cf75", "Mangroves"),
+    (100, "#fae6a0", "Moss and lichen"),
+]
+
+
+def _save_worldcover_style() -> None:
+    from osgeo import gdal
+
+    layer = _temp_raster("worldcover", gdal.GDT_Byte)
+    classes = [
+        QgsPalettedRasterRenderer.Class(v, QColor(c), lbl) for v, c, lbl in WORLDCOVER_CLASSES
+    ]
+    layer.setRenderer(QgsPalettedRasterRenderer(layer.dataProvider(), 1, classes))
+    msg, ok = layer.saveNamedStyle(str(STYLES / "worldcover.qml"))
+    if not ok:
+        raise RuntimeError(f"Failed to save WorldCover style: {msg}")
+
+
+def _save_ndvi_change_style(threshold: float = 0.15) -> None:
+    """Discrete loss/gain classes; |ΔNDVI| below the screening threshold is transparent."""
+    from osgeo import gdal
+
+    layer = _temp_raster("ndvi_change", gdal.GDT_Float32)
+    t2 = 2 * threshold
+    items = [
+        (-t2, QColor("#b2182b"), f"Strong loss (ΔNDVI ≤ -{t2:g})"),
+        (-threshold, QColor("#ef8a62"), f"Loss (ΔNDVI ≤ -{threshold:g})"),
+        (threshold, QColor(255, 255, 255, 0), "No significant change"),
+        (t2, QColor("#67a9cf"), f"Gain (ΔNDVI ≥ {threshold:g})"),
+        (float("inf"), QColor("#2166ac"), f"Strong gain (ΔNDVI ≥ {t2:g})"),
+    ]
+    ramp = QgsColorRampShader(-1, 1)
+    ramp.setColorRampType(QgsColorRampShader.Discrete)
+    ramp.setColorRampItemList([QgsColorRampShader.ColorRampItem(v, c, lbl) for v, c, lbl in items])
+    shader = QgsRasterShader()
+    shader.setRasterShaderFunction(ramp)
+    renderer = QgsSingleBandPseudoColorRenderer(layer.dataProvider(), 1, shader)
+    renderer.setClassificationMin(-1)
+    renderer.setClassificationMax(1)
+    layer.setRenderer(renderer)
+    msg, ok = layer.saveNamedStyle(str(STYLES / "ndvi_change.qml"))
+    if not ok:
+        raise RuntimeError(f"Failed to save NDVI change style: {msg}")
 
 
 def main() -> int:

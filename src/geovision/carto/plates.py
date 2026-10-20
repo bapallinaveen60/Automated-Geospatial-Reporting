@@ -9,6 +9,31 @@ from geovision.ingest.aoi import ValidatedAOI
 
 OSM_NOTE = "© OpenStreetMap contributors (ODbL)"
 
+# WorldCover class labels as written in styles/worldcover.qml.
+WORLDCOVER_LABELS = {
+    10: "Tree cover",
+    20: "Shrubland",
+    30: "Grassland",
+    40: "Cropland",
+    50: "Built-up",
+    60: "Bare / sparse vegetation",
+    70: "Snow and ice",
+    80: "Permanent water bodies",
+    90: "Herbaceous wetland",
+    95: "Mangroves",
+    100: "Moss and lichen",
+}
+
+
+def _classes_present(raster: Path) -> list[str]:
+    import numpy as np
+    import rasterio
+
+    with rasterio.open(raster) as src:
+        values = np.unique(src.read(1))
+    return [WORLDCOVER_LABELS[int(v)] for v in values if int(v) in WORLDCOVER_LABELS]
+
+
 # Vector layers drawn on the context plate, top to bottom: key -> legend label.
 CONTEXT_LAYERS = {
     "coastline": "Coastline",
@@ -25,6 +50,7 @@ def render_screening_plates(
     project_id: str,
     work_dir: Path,
     context_buffer_m: float = 2000,
+    periods: tuple[str, str] | None = None,
 ) -> list[dict[str, str]]:
     """Render the plates and return ``[{"title", "path"}]`` with PNG paths for the report."""
     crs = aoi.utm_crs.to_string()
@@ -61,9 +87,41 @@ def render_screening_plates(
     run_plate(job, work_dir)
     plates.append({"title": title, "path": str(job.output_png)})
 
-    # Plate 2 — current-period NDVI.
-    if "ndvi_current" in rasters:
-        title = "Plate 2 — Vegetation index (NDVI), current period"
+    s2_note = "Copernicus Sentinel-2 L2A, cloud-masked median composite (10 m)"
+    baseline, current = periods or ("baseline period", "current period")
+    # (raster key, file stem, title, legend name, style, notes)
+    raster_plates = [
+        (
+            "ndvi_current",
+            "ndvi",
+            "Vegetation index (NDVI), current period",
+            "NDVI",
+            "ndvi.qml",
+            f"NDVI for {current}. Source: {s2_note}.",
+        ),
+        (
+            "worldcover",
+            "landcover",
+            "Land use / land cover",
+            "ESA WorldCover",
+            "worldcover.qml",
+            "ESA WorldCover 10 m (CC BY 4.0, © ESA WorldCover project).",
+        ),
+        (
+            "ndvi_change",
+            "ndvi_change",
+            "Vegetation change between periods (ΔNDVI)",
+            "NDVI change",
+            "ndvi_change.qml",
+            f"ΔNDVI = current ({current}) − baseline ({baseline}). Source: {s2_note}. "
+            f"Basemap: {OSM_NOTE}.",
+        ),
+    ]
+    for key, stem, name, legend, style, notes in raster_plates:
+        if key not in rasters:
+            continue
+        n = len(plates) + 1
+        title = f"Plate {n} — {name}"
         job = PlateJob(
             title=title,
             subtitle=subtitle,
@@ -71,14 +129,17 @@ def render_screening_plates(
             extent_crs=crs,
             layers=[
                 site,
-                PlateLayer("NDVI", rasters["ndvi_current"], kind="raster", style="ndvi.qml"),
+                PlateLayer(
+                    legend,
+                    rasters[key],
+                    kind="raster",
+                    style=style,
+                    legend_keep=_classes_present(rasters[key]) if key == "worldcover" else None,
+                ),
             ],
-            output_pdf=plates_dir / "plate2_ndvi.pdf",
-            output_png=plates_dir / "plate2_ndvi.png",
-            notes=(
-                "NDVI from a cloud-masked median composite of Copernicus Sentinel-2 L2A "
-                f"imagery (10 m). Basemap: {OSM_NOTE}."
-            ),
+            output_pdf=plates_dir / f"plate{n}_{stem}.pdf",
+            output_png=plates_dir / f"plate{n}_{stem}.png",
+            notes=notes,
             padding=0.05,
         )
         run_plate(job, work_dir)

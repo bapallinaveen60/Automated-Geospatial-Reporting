@@ -54,14 +54,29 @@ def load_s2(
     )
 
 
-def processing_baselines(items: pystac.ItemCollection) -> dict[str, str]:
-    """Map acquisition date (YYYY-MM-DD) to the S2 processing baseline, used for DN offsets."""
-    out: dict[str, str] = {}
+def item_dn_offset(item: pystac.Item) -> int:
+    """DN offset still present in an item's pixel values.
+
+    Baseline ≥ 04.00 products carry +1000, but Earth Search v1 removes it during COG
+    conversion when ``earthsearch:boa_offset_applied`` is true. Subtracting it twice biases
+    reflectance by -0.1 and inflates NDVI.
+    """
+    if item.properties.get("earthsearch:boa_offset_applied"):
+        return 0
+    baseline = str(item.properties.get("s2:processing_baseline", ""))
+    if baseline:
+        return 1000 if baseline >= "04.00" else 0
+    return 1000 if item.datetime and item.datetime.date().isoformat() >= "2022-01-25" else 0
+
+
+def dn_offsets(items: pystac.ItemCollection) -> tuple[dict[str, int], set[str]]:
+    """Per-date DN offsets (scenes are merged per solar day) and dates whose scenes disagree."""
+    by_date: dict[str, set[int]] = {}
     for it in items:
         if it.datetime is not None:
-            baseline = it.properties.get("s2:processing_baseline", "")
-            out[it.datetime.date().isoformat()] = str(baseline)
-    return out
+            by_date.setdefault(it.datetime.date().isoformat(), set()).add(item_dn_offset(it))
+    offsets = {d: next(iter(v)) for d, v in by_date.items() if len(v) == 1}
+    return offsets, {d for d, v in by_date.items() if len(v) > 1}
 
 
 def item_refs(items: pystac.ItemCollection) -> list[InputRef]:

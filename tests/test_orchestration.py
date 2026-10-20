@@ -25,6 +25,7 @@ def test_definitions_load_and_graph_shape():
     assert keys == {
         "aoi_request",
         "aoi_validated",
+        "site_location",
         "s2_imagery",
         "land_cover",
         "proximity_results",

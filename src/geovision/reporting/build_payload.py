@@ -6,6 +6,7 @@ from typing import Any
 from geovision.contracts.aoi import AOIRequest
 from geovision.contracts.lineage import LineageRecord
 from geovision.contracts.metrics import MetricsPayload
+from geovision.reporting.narrative import summary_paragraphs
 
 
 def build_payload(
@@ -21,6 +22,7 @@ def build_payload(
 ) -> dict[str, Any]:
     return {
         "draft": draft,
+        "narrative": summary_paragraphs(metrics),
         "generated": date.today().isoformat(),
         "module": {
             "name": module["name"],

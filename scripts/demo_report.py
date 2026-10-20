@@ -17,6 +17,7 @@ from geovision.core.logging import configure_logging, get_logger
 from geovision.core.storage import ProjectStorage
 from geovision.pipeline import run_screening
 from geovision.reporting.build_payload import build_payload
+from geovision.reporting.charts import render_charts
 from geovision.reporting.compile import compile_report
 
 log = get_logger("demo")
@@ -44,7 +45,12 @@ def main() -> None:
     )
 
     plates = render_screening_plates(
-        result.aoi, result.layers, result.rasters, request.project_id, work / "analysis"
+        result.aoi,
+        result.layers,
+        result.rasters,
+        request.project_id,
+        work / "analysis",
+        periods=(request.baseline_period.to_stac(), request.current_period.to_stac()),
     )
     log.info("Plates rendered: %d", len(plates))
 
@@ -54,6 +60,7 @@ def main() -> None:
         result.module.model_dump(),
         lineage=result.lineage,
         plates=plates,
+        charts=render_charts(result.metrics, work / "analysis" / "charts"),
         warnings=result.warnings,
     )
     pdf = compile_report(payload, work / "report" / f"{request.project_id}_draft.pdf")

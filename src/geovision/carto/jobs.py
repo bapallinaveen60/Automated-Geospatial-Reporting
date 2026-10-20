@@ -34,6 +34,7 @@ class PlateLayer:
     path: Path
     kind: str = "vector"  # vector | raster
     style: str | None = None  # file name in carto/styles, or absolute path
+    legend_keep: list[str] | None = None  # raster legend classes to show (default: all)
 
 
 @dataclass
@@ -72,7 +73,13 @@ class PlateJob:
             "extent_crs": self.extent_crs,
             "padding": self.padding,
             "layers": [
-                {"name": lyr.name, "path": p(lyr.path), "kind": lyr.kind, "style": lyr.style}
+                {
+                    "name": lyr.name,
+                    "path": p(lyr.path),
+                    "kind": lyr.kind,
+                    "style": lyr.style,
+                    "legend_keep": lyr.legend_keep,
+                }
                 for lyr in self.layers
             ],
             "basemap": self.basemap,

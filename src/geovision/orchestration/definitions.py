@@ -3,9 +3,11 @@
 Drop an ``AOIRequest`` JSON into ``<data_root>/incoming/<project_id>.json``; the sensor
 registers the partition and materialises the graph through to the draft PDF:
 
-    aoi_request → aoi_validated ─┬─ s2_imagery ─────┐
-                                 ├─ land_cover ─────┼─ screening_metrics → map_plates → report_draft
-                                 └─ proximity_results┘
+    aoi_request → aoi_validated ─┬─ site_location ─────┐
+                                 ├─ s2_imagery ────────┤
+                                 ├─ land_cover ────────┼─ screening_metrics
+                                 └─ proximity_results ─┘        ↓
+                                                   map_plates → report_draft
 
 Assets return ``(value, StageResult)`` so lineage, warnings and file paths travel with the
 data. Run locally (DAGSTER_HOME keeps run history between restarts):
@@ -24,6 +26,7 @@ from geovision.carto.plates import render_screening_plates
 from geovision.contracts import AOIRequest, ClassShare, MetricsPayload, ProximityResult
 from geovision.core.config import get_settings
 from geovision.core.storage import ProjectStorage
+from geovision.ingest.admin import AdminLocation
 from geovision.ingest.aoi import ValidatedAOI
 from geovision.modules import load_module
 from geovision.pipeline import (
@@ -33,9 +36,11 @@ from geovision.pipeline import (
     stage_aoi,
     stage_imagery,
     stage_landcover,
+    stage_location,
     stage_proximity,
 )
 from geovision.reporting.build_payload import build_payload
+from geovision.reporting.charts import render_charts
 from geovision.reporting.compile import compile_report
 
 projects = dg.DynamicPartitionsDefinition(name="projects")
@@ -130,6 +135,23 @@ def s2_imagery(
 
 
 @dg.asset(**ASSET_ARGS, retry_policy=NETWORK_RETRY)
+def site_location(
+    context: dg.AssetExecutionContext,
+    aoi_request: AOIRequest,
+    aoi_validated: tuple[ValidatedAOI, StageResult],
+) -> tuple[AdminLocation | None, StageResult]:
+    """State / district / locality of the site (OSM Nominatim), for the report text."""
+    loc, side = stage_location(aoi_request, aoi_validated[0])
+    _record(
+        context,
+        side,
+        state=str(loc.state if loc else None),
+        district=str(loc.district if loc else None),
+    )
+    return loc, side
+
+
+@dg.asset(**ASSET_ARGS, retry_policy=NETWORK_RETRY)
 def land_cover(
     context: dg.AssetExecutionContext,
     aoi_request: AOIRequest,
@@ -137,7 +159,9 @@ def land_cover(
 ) -> tuple[list[ClassShare], StageResult]:
     """ESA WorldCover class breakdown inside the site."""
     module = load_module(aoi_request.module)
-    lulc, side = stage_landcover(aoi_request, module, aoi_validated[0])
+    lulc, side = stage_landcover(
+        aoi_request, module, aoi_validated[0], _work_dir(aoi_request.project_id)
+    )
     _record(
         context,
         side,
@@ -170,6 +194,7 @@ def screening_metrics(
     context: dg.AssetExecutionContext,
     aoi_request: AOIRequest,
     aoi_validated: tuple[ValidatedAOI, StageResult],
+    site_location: tuple[AdminLocation | None, StageResult],
     s2_imagery: tuple[ImageryMetrics, StageResult],
     land_cover: tuple[list[ClassShare], StageResult],
     proximity_results: tuple[list[ProximityResult], StageResult],
@@ -177,10 +202,16 @@ def screening_metrics(
     """All metrics plus rule-based exceedance flags; written to metrics.json and lineage.json."""
     module = load_module(aoi_request.module)
     metrics = assemble_metrics(
-        aoi_request, module, aoi_validated[0], s2_imagery[0], land_cover[0], proximity_results[0]
+        aoi_request,
+        module,
+        aoi_validated[0],
+        s2_imagery[0],
+        land_cover[0],
+        proximity_results[0],
+        site_location[0],
     )
     side = StageResult()
-    for _, s in (aoi_validated, s2_imagery, land_cover, proximity_results):
+    for _, s in (aoi_validated, site_location, s2_imagery, land_cover, proximity_results):
         side.merge(s)
     store = ProjectStorage(aoi_request.project_id)
     metrics_path = store.write_json(metrics, "analysis", "metrics.json")
@@ -210,14 +241,20 @@ def map_plates(
     aoi_request: AOIRequest,
     aoi_validated: tuple[ValidatedAOI, StageResult],
     s2_imagery: tuple[ImageryMetrics, StageResult],
+    land_cover: tuple[list[ClassShare], StageResult],
     proximity_results: tuple[list[ProximityResult], StageResult],
 ) -> list[dict[str, str]]:
     """Headless PyQGIS plates (local QGIS or the Docker renderer)."""
     aoi, aoi_side = aoi_validated
     files = {**aoi_side.files, **proximity_results[1].files}
-    rasters = {k: v for k, v in s2_imagery[1].files.items() if k.startswith("ndvi_")}
+    rasters = {**s2_imagery[1].files, **land_cover[1].files}
     plates = render_screening_plates(
-        aoi, files, rasters, aoi_request.project_id, _work_dir(aoi_request.project_id)
+        aoi,
+        files,
+        rasters,
+        aoi_request.project_id,
+        _work_dir(aoi_request.project_id),
+        periods=(aoi_request.baseline_period.to_stac(), aoi_request.current_period.to_stac()),
     )
     context.add_output_metadata({p["title"]: dg.MetadataValue.path(p["path"]) for p in plates})
     return plates
@@ -228,6 +265,7 @@ def report_draft(
     context: dg.AssetExecutionContext,
     aoi_request: AOIRequest,
     aoi_validated: tuple[ValidatedAOI, StageResult],
+    site_location: tuple[AdminLocation | None, StageResult],
     s2_imagery: tuple[ImageryMetrics, StageResult],
     land_cover: tuple[list[ClassShare], StageResult],
     proximity_results: tuple[list[ProximityResult], StageResult],
@@ -236,7 +274,7 @@ def report_draft(
 ) -> str:
     """Draft PDF/A report awaiting human review (watermarked DRAFT)."""
     side = StageResult()
-    for _, s in (aoi_validated, s2_imagery, land_cover, proximity_results):
+    for _, s in (aoi_validated, site_location, s2_imagery, land_cover, proximity_results):
         side.merge(s)
     pid = aoi_request.project_id
     payload = build_payload(
@@ -245,6 +283,7 @@ def report_draft(
         load_module(aoi_request.module).model_dump(),
         lineage=side.lineage,
         plates=map_plates,
+        charts=render_charts(screening_metrics, _work_dir(pid) / "charts"),
         warnings=side.warnings,
     )
     pdf = compile_report(payload, _root() / pid / "report" / f"{pid}_draft.pdf")
@@ -282,6 +321,7 @@ defs = dg.Definitions(
     assets=[
         aoi_request,
         aoi_validated,
+        site_location,
         s2_imagery,
         land_cover,
         proximity_results,

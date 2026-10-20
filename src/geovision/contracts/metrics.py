@@ -15,6 +15,7 @@ class SiteSummary(BaseModel):
     analysis_crs: str
     state: str | None = None
     district: str | None = None
+    locality: str | None = None
 
 
 class ClassShare(BaseModel):

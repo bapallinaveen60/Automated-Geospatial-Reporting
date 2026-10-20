@@ -58,12 +58,8 @@
 
 // ---------- Summary ----------
 = Executive summary
-The site covers *#fmt(m.site.area_ha) ha*
-(centroid #fmt(m.site.centroid_lat, digits: 5)° N, #fmt(m.site.centroid_lon, digits: 5)° E).
-#if m.flags.len() == 0 [
-  No screening rules were triggered.
-] else [
-  #m.flags.len() screening item(s) require attention:
+#for para in data.at("narrative", default: ()) [
+  #para
 ]
 
 #if m.flags.len() > 0 {
@@ -84,8 +80,10 @@ The site covers *#fmt(m.site.area_ha) ha*
   [Area], [#fmt(m.site.area_ha) ha (#fmt(m.site.area_ha * 2.47105) acres)],
   [Perimeter], [#fmt(m.site.perimeter_m / 1000) km],
   [Analysis CRS], [#m.site.analysis_crs],
-  [State / District],
-  [#if m.site.state == none [—] else [#m.site.state] / #if m.site.district == none [—] else [#m.site.district]],
+  [Locality],
+  [#if m.site.at("locality", default: none) == none [—] else [#m.site.locality]],
+  [District / State],
+  [#if m.site.district == none [—] else [#m.site.district] / #if m.site.state == none [—] else [#m.site.state]],
 )
 
 = Land use / land cover
@@ -96,6 +94,9 @@ The site covers *#fmt(m.site.area_ha) ha*
     ..m.lulc.map(c => (c.label, fmt(c.area_ha), fmt(c.percent, digits: 1))).flatten(),
   )
 }
+#for ch in data.charts.filter(c => c.at("key", default: "") == "lulc") [
+  #figure(image(ch.path, width: 85%), caption: [#ch.title (ESA WorldCover 10 m)])
+]
 
 = Vegetation and water indices
 #table(

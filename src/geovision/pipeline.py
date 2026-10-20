@@ -32,9 +32,10 @@ from geovision.contracts import (
 )
 from geovision.core.logging import get_logger
 from geovision.core.provenance import git_sha, package_versions, utcnow
+from geovision.ingest.admin import AdminLocation, reverse_admin
 from geovision.ingest.aoi import ValidatedAOI, read_aoi, validate_aoi
 from geovision.ingest.raster_sources import ESA_WORLDCOVER, load_thematic
-from geovision.ingest.stac import item_refs, load_s2, processing_baselines, search_s2
+from geovision.ingest.stac import dn_offsets, item_refs, load_s2, search_s2
 from geovision.ingest.vector_sources import build_source
 from geovision.modules import ModuleConfig, load_module
 
@@ -114,10 +115,16 @@ def _s2_indices(
     found = search_s2(bbox, period.to_stac(), max_cloud=max_cloud)
     if not found:
         raise LookupError(f"No Sentinel-2 scenes below {max_cloud}% cloud for {period.to_stac()}")
-    items = _least_cloudy(found, max_scenes)
+    # Same-day scenes are merged, so a date mixing offset conventions can't be corrected.
+    _, mixed = dn_offsets(found)
+    usable = [it for it in found if it.datetime and it.datetime.date().isoformat() not in mixed]
+    if not usable:
+        raise LookupError(f"No consistently processed Sentinel-2 scenes for {period.to_stac()}")
+    items = _least_cloudy(pystac.ItemCollection(usable), max_scenes)
     log.info("Sentinel-2 %s: using %d of %d scenes", period.to_stac(), len(items), len(found))
     ds = load_s2(items, bbox, aoi.utm_crs.to_string(), resolution=resolution)
-    refl = to_reflectance(ds, REFLECTANCE_BANDS, processing_baselines(items))
+    offsets, _ = dn_offsets(items)
+    refl = to_reflectance(ds, REFLECTANCE_BANDS, offsets)
     comp = median_composite(refl, REFLECTANCE_BANDS).compute()
     return {"ndvi": ndvi(comp), "mndwi": mndwi(comp)}, item_refs(items)
 
@@ -143,6 +150,20 @@ def stage_aoi(
         t0,
     )
     return aoi, StageResult([rec], list(aoi.warnings), {"aoi": aoi_path})
+
+
+def stage_location(
+    request: AOIRequest, aoi: ValidatedAOI
+) -> tuple[AdminLocation | None, StageResult]:
+    """State / district / locality of the site centroid (report text only)."""
+    t0 = utcnow()
+    c = aoi.geometry.centroid
+    try:
+        loc, ref = reverse_admin(c.x, c.y)
+    except Exception as e:  # noqa: BLE001 - names are optional; the reviewer can fill them in
+        return None, StageResult(warnings=[f"State/district lookup failed: {e}"])
+    rec = _lineage("site_location", request.project_id, [ref], {"method": "reverse geocode"}, t0)
+    return loc, StageResult([rec])
 
 
 def stage_imagery(
@@ -189,6 +210,12 @@ def stage_imagery(
         grids[label]["ndvi"].astype("float32").rio.write_crs(crs).rio.to_raster(path)
         out.files[f"ndvi_{label}"] = path
 
+    if {"baseline", "current"} <= set(grids):
+        delta = (grids["current"]["ndvi"] - grids["baseline"]["ndvi"]).astype("float32")
+        path = work_dir / "rasters" / "ndvi_change.tif"
+        delta.rio.write_crs(crs).rio.to_raster(path)
+        out.files["ndvi_change"] = path
+
     result = ImageryMetrics()
     masked = {
         label: {k: mask_to_geometry(v, aoi.geometry_utm, crs) for k, v in g.items()}
@@ -216,7 +243,7 @@ def stage_imagery(
 
 
 def stage_landcover(
-    request: AOIRequest, module: ModuleConfig, aoi: ValidatedAOI
+    request: AOIRequest, module: ModuleConfig, aoi: ValidatedAOI, work_dir: Path
 ) -> tuple[list[ClassShare], StageResult]:
     t0 = utcnow()
     crs = aoi.utm_crs.to_string()
@@ -224,10 +251,13 @@ def stage_landcover(
         wc, refs = load_thematic(ESA_WORLDCOVER, aoi.buffered_bbox(DISPLAY_MARGIN_M), crs)
         wc_masked = mask_to_geometry(wc, aoi.geometry_utm, crs).compute()
         lulc = class_breakdown(wc_masked.values, module.lulc_labels(), pixel_area_m2(wc))
+        path = work_dir / "rasters" / "worldcover.tif"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        wc.fillna(0).astype("uint8").rio.write_crs(crs).rio.write_nodata(0).rio.to_raster(path)
     except Exception as e:  # noqa: BLE001 - a missing optional layer must not stop the report
         return [], StageResult(warnings=[f"Land cover unavailable: {e}"])
     rec = _lineage("lulc_worldcover", request.project_id, refs, {"resolution_m": 10}, t0)
-    return lulc, StageResult([rec])
+    return lulc, StageResult([rec], files={"worldcover": path})
 
 
 def stage_proximity(
@@ -271,6 +301,7 @@ def assemble_metrics(
     imagery: ImageryMetrics,
     lulc: list[ClassShare],
     prox: list[ProximityResult],
+    location: AdminLocation | None = None,
 ) -> MetricsPayload:
     c = aoi.geometry.centroid
     metrics = MetricsPayload(
@@ -281,6 +312,9 @@ def assemble_metrics(
             centroid_lon=c.x,
             centroid_lat=c.y,
             analysis_crs=aoi.utm_crs.to_string(),
+            state=location.state if location else None,
+            district=location.district if location else None,
+            locality=location.village_or_town if location else None,
         ),
         lulc=lulc,
         indices=imagery.indices,
@@ -298,20 +332,22 @@ def run_screening(
 ) -> ScreeningResult:
     module = load_module(request.module)
     aoi, side = stage_aoi(request, module, work_dir)
+    location, s = stage_location(request, aoi)
+    side.merge(s)
     imagery, s = stage_imagery(request, module, aoi, work_dir, max_scenes)
     side.merge(s)
-    lulc, s = stage_landcover(request, module, aoi)
+    lulc, s = stage_landcover(request, module, aoi, work_dir)
     side.merge(s)
     prox, s = stage_proximity(request, module, aoi, work_dir)
     side.merge(s)
-    metrics = assemble_metrics(request, module, aoi, imagery, lulc, prox)
+    metrics = assemble_metrics(request, module, aoi, imagery, lulc, prox, location)
     return ScreeningResult(
         request=request,
         module=module,
         aoi=aoi,
         metrics=metrics,
         lineage=side.lineage,
-        rasters={k: v for k, v in side.files.items() if k.startswith("ndvi_")},
-        layers={k: v for k, v in side.files.items() if not k.startswith("ndvi_")},
+        rasters={k: v for k, v in side.files.items() if v.suffix == ".tif"},
+        layers={k: v for k, v in side.files.items() if v.suffix != ".tif"},
         warnings=side.warnings,
     )
