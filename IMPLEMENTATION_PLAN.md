@@ -167,10 +167,12 @@ geovision/
 - **Exit:** the report compiles in under 1 s and passes the PDF/A validator.
 
 ### Phase 5 — Orchestration and lineage (Weeks 7–8)
-- [ ] Turn every stage into a Dagster software-defined asset, dynamically partitioned by `project_id`.
-- [ ] Add a **sensor** that watches the `incoming/` bucket for new AOIs and a **schedule** for recurring monitoring runs.
-- [ ] Attach asset metadata (STAC IDs, cloud %, thresholds, git SHA, package versions, runtime) and emit `lineage.json`, which feeds the report appendix. This is the **chain-of-custody moat**.
-- [ ] Add retries, failure alerts (email/Slack) and resource configs (Dask, storage).
+- [x] Turn every stage into a Dagster software-defined asset, dynamically partitioned by `project_id`.
+- [x] Add a **sensor** that watches the `incoming/` folder for new AOIs.
+- [ ] Add a **schedule** for recurring monitoring runs.
+- [x] Attach asset metadata (STAC IDs, cloud %, thresholds, git SHA, package versions, runtime) and emit `lineage.json`, which feeds the report appendix. This is the **chain-of-custody moat**.
+- [x] Add retries with backoff on network stages.
+- [ ] Add failure alerts (email/Slack) and resource configs (Dask, storage).
 - **Exit:** AOI drop → draft PDF fully automatic, with the full lineage graph visible in the Dagster UI.
 
 ### Phase 6 — Human-in-the-loop review (Week 9)

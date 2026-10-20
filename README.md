@@ -21,17 +21,48 @@ uv run geovision schemas --out docs/schemas
 Optional extras:
 
 ```bash
-uv sync --extra orchestration      # Dagster:  uv run dagster dev
+uv sync --extra orchestration      # Dagster
 uv sync --extra review             # Streamlit review app
+```
+
+## Running reports
+
+Copy `.env.example` to `.env` and set `GEOVISION_QGIS_PYTHON` to your QGIS launcher (or build the Docker renderer image instead). Typst must be on `PATH`.
+
+**One-off, without orchestration:**
+
+```bash
+uv run python scripts/demo_report.py data/fixtures/request_ameenpur.json
+```
+
+**With Dagster (lineage UI, retries, automatic runs):**
+
+```bash
+# PowerShell: $env:DAGSTER_HOME = "$PWD\.dagster"   (keeps run history; must be absolute)
+uv run --extra orchestration dagster dev
+```
+
+Open http://localhost:3000. Any `AOIRequest` JSON saved as `data/runs/incoming/<project_id>.json` is picked up by the `incoming_aoi_sensor` within 30 s and runs through to `data/runs/<project_id>/report/<project_id>_draft.pdf`. Editing the file triggers a re-run. To run one request without the UI:
+
+```bash
+uv run --extra orchestration python scripts/run_dagster_partition.py data/fixtures/request_ameenpur.json
+```
+
+Asset graph (one partition per project):
+
+```
+aoi_request → aoi_validated ─┬─ s2_imagery ────────┐
+                             ├─ land_cover ────────┼─ screening_metrics → map_plates → report_draft
+                             └─ proximity_results ─┘
 ```
 
 External tools:
 
 | Tool | Used for | Install |
 |---|---|---|
-| Typst ≥ 0.13 | Report compilation | `winget install --id Typst.Typst` |
-| Docker Desktop | QGIS renderer, dev stack | docker.com |
-| QGIS LTR | Designing `.qpt` templates / `.qml` styles | qgis.org |
+| Typst ≥ 0.15 | Report compilation | `winget install --id Typst.Typst` |
+| QGIS 3.44 LTR | Map plates (local renderer); designing `.qpt` / `.qml` | qgis.org |
+| Docker Desktop | Containerised QGIS renderer, dev stack (optional locally) | docker.com |
 
 ## Layout
 
