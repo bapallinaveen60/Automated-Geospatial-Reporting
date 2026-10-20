@@ -1,6 +1,7 @@
 """Compile a report with the Typst CLI from a JSON payload."""
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -13,6 +14,26 @@ TEMPLATE_DIR = Path(__file__).parent / "typst"
 
 class TypstError(RuntimeError):
     pass
+
+
+def find_typst() -> str:
+    """Configured binary, else PATH, else a winget install (shells opened before the install
+    don't see winget's PATH update)."""
+    configured = get_settings().typst_bin
+    found = shutil.which(configured)
+    if found:
+        return found
+    local = os.environ.get("LOCALAPPDATA")
+    if local:
+        winget = sorted(
+            Path(local, "Microsoft", "WinGet", "Packages").glob("Typst.Typst_*/*/typst.exe")
+        )
+        if winget:
+            return str(winget[-1])
+    raise TypstError(
+        f"Typst CLI not found ({configured!r}). Install it (winget install --id Typst.Typst), "
+        "open a new terminal, or set GEOVISION_TYPST_BIN to the full path."
+    )
 
 
 def compile_report(
@@ -49,14 +70,11 @@ def compile_report(
 
     (build / "report.json").write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
 
-    cmd = [get_settings().typst_bin, "compile", "--root", str(build)]
+    cmd = [find_typst(), "compile", "--root", str(build)]
     if pdf_standard:
         cmd += ["--pdf-standard", pdf_standard]
     cmd += [str(build / template), str(out_pdf.resolve())]
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-    except FileNotFoundError as e:
-        raise TypstError("Typst CLI not found; install it or set GEOVISION_TYPST_BIN") from e
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
     if result.returncode != 0:
         raise TypstError(result.stderr.strip())
     return out_pdf

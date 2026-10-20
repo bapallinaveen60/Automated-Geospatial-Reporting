@@ -38,7 +38,8 @@ uv run python scripts/demo_report.py data/fixtures/request_ameenpur.json
 **With Dagster (lineage UI, retries, automatic runs):**
 
 ```bash
-# PowerShell: $env:DAGSTER_HOME = "$PWD\.dagster"   (keeps run history; must be absolute)
+# Optional, keeps run history (PowerShell; the folder must exist):
+#   mkdir .dagster -Force; $env:DAGSTER_HOME = "$PWD\.dagster"
 uv run --extra orchestration dagster dev
 ```
 
